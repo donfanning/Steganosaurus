@@ -6,12 +6,13 @@ import android.graphics.drawable.Drawable;
 
 public class Steganograph {
 
-    public Drawable encodePicture(Drawable sourcePicture, Drawable pictureToHide) {
+    public Drawable encodePicture(Drawable destinationPicture, Drawable pictureToHide) {
         //bitmapFactory
         return null;
     }
 
-    public void decodePicture(Drawable picture) {
+    public Drawable decodePicture(Drawable picture) {
 
+        return null;
     }
 }
