@@ -10,4 +10,11 @@ public class MainMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //user taps one menu button, start corresponding activity
+    }
+
 }
