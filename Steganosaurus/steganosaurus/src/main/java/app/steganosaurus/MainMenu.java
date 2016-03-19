@@ -1,5 +1,6 @@
 package app.steganosaurus;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.Toast;
 import steganosaurus.R;
 
 public class MainMenu extends AppCompatActivity {
+
+    private final int ENCRYPT_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,8 @@ public class MainMenu extends AppCompatActivity {
     public void encrypt(View v) {
         String button_title = (String)((Button)v).getText();
         Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT);
+        Intent i = new Intent(this, EncryptActivity.class);
+        startActivityForResult(i, ENCRYPT_CODE);
     }
 
 }
