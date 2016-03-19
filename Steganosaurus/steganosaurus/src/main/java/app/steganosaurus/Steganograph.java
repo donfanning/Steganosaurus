@@ -1,4 +1,4 @@
-package steganosaurus;
+package app.steganosaurus;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -16,3 +16,8 @@ public class Steganograph {
         return null;
     }
 }
+
+
+/**
+ * public void maFonction(View v);  :  méthode pour onClick dans manifest
+ */

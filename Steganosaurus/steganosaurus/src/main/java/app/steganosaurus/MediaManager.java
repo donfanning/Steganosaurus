@@ -1,4 +1,4 @@
-package steganosaurus;
+package app.steganosaurus;
 
 public class MediaManager {
 
