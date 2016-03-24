@@ -7,18 +7,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import app.steganosaurus.Utility.Const;
 import steganosaurus.R;
 
 public class MainMenu extends AppCompatActivity {
-
-    private final int ENCRYPT_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-
-        //Button Hide_secrets_button =(Button) findViewById();
     }
 
     @Override
@@ -29,9 +26,16 @@ public class MainMenu extends AppCompatActivity {
 
     public void encrypt(View v) {
         String button_title = (String)((Button)v).getText();
-        Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT);
+        Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, EncryptActivity.class);
-        startActivityForResult(i, ENCRYPT_CODE);
+        startActivityForResult(i, Const.ENCRYPT_CODE);
+    }
+
+    public void decrypt(View v) {
+        String button_title = (String)((Button)v).getText();
+        Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(this, DecryptActivity.class);
+        startActivityForResult(i, Const.DECRYPT_CODE);
     }
 
 }

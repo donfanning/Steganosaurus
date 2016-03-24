@@ -1,4 +1,4 @@
-package app.steganosaurus;
+package app.steganosaurus.Utility;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
