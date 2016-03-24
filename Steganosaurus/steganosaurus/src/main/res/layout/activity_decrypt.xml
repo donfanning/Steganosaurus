@@ -22,10 +22,11 @@
     <ImageButton
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:id="@+id/imageButton"
+        android:id="@+id/decrypt_image_button"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="30dp"
+        android:onClick="getStoredPicturesFromDevice"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -43,7 +44,8 @@
             android:padding="15dp"
             android:textColor="#fff"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:onClick="decryptPicture"/>
 
         <View
             android:layout_width="0dp"

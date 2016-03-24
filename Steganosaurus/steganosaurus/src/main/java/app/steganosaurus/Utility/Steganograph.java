@@ -1,23 +1,19 @@
 package app.steganosaurus.Utility;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 
 public class Steganograph {
 
-    public Drawable encodePicture(Drawable destinationPicture, Drawable pictureToHide) {
+    public Bitmap encodePicture(Bitmap destinationPicture, Bitmap pictureToHide) {
         //bitmapFactory
-        return null;
+        return destinationPicture;
     }
 
-    public Drawable decodePicture(Drawable picture) {
+    public Bitmap decodePicture(Bitmap picture) {
 
-        return null;
+        return picture;
     }
 }
-
-
-/**
- * public void maFonction(View v);  :  méthode pour onClick dans manifest
- */

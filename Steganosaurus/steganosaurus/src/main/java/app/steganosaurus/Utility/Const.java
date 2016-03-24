@@ -7,4 +7,6 @@ public class Const {
 
     public static int PICK_SOURCE_IMAGE_REQUEST = 3;
     public static int PICK_HIDDEN_IMAGE_REQUEST = 4;
+
+    public static int PICK_DECRYPT_IMAGE_REQUEST = 5;
 }
