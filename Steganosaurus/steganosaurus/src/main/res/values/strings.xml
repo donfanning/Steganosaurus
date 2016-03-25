@@ -8,4 +8,5 @@
     <string name="decrypt_button_text">Show secrets</string>
 
     <string name="back_button_text">Go back</string>
+    <string name="title_activity_options">OptionsActivity</string>
 </resources>

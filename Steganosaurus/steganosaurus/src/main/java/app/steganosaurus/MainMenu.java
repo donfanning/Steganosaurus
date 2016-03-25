@@ -38,9 +38,16 @@ public class MainMenu extends AppCompatActivity {
         startActivityForResult(i, Const.DECRYPT_CODE);
     }
 
+    public void share(View v) {
+        String title = (String)((Button)v).getText();
+        Toast.makeText(this, "You clicked on " + title, Toast.LENGTH_LONG).show();
+    }
+
     public void showOptions(View v) {
         String title = (String)((Button)v).getText();
         Toast.makeText(this, "You clicked on " + title, Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(this, OptionsActivity.class);
+        startActivity(i);
     }
 
 }
