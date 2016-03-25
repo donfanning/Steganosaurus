@@ -12,13 +12,24 @@
         android:text="Choose starting image"
         android:id="@+id/textView"
         android:textSize="24sp"
-        android:paddingTop="24dp" />
+        android:paddingTop="12dp" />
 
     <ImageButton
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="110dp"
         android:id="@+id/encrypt_source_image"
+        android:scaleType="centerCrop"
         android:onClick="getStoredPicturesFromDevice"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take picture"
+        android:id="@+id/source_take_picture_btn"
+        android:padding="15dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:onClick="takePicture"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,14 +37,24 @@
         android:text="Choose image to hide"
         android:id="@+id/textView2"
         android:textSize="24sp"
-        android:paddingTop="24dp" />
+        android:paddingTop="12dp" />
 
     <ImageButton
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="110dp"
         android:id="@+id/encrypt_hidden_image"
         android:onClick="getStoredPicturesFromDevice"/>
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take picture"
+        android:id="@+id/hidden_take_picture_btn"
+        android:padding="15dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:onClick="takePicture" />
 
     <LinearLayout
         android:orientation="horizontal"

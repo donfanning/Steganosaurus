@@ -95,7 +95,7 @@
                 android:clickable="false"
                 android:textSize="16sp"
                 android:textColor="#2E2E2E"
-                android:onClick="share"/>
+                android:onClick=""/>
 
             <Button
                 android:id="@+id/secret_options"

@@ -38,4 +38,9 @@ public class MainMenu extends AppCompatActivity {
         startActivityForResult(i, Const.DECRYPT_CODE);
     }
 
+    public void showOptions(View v) {
+        String title = (String)((Button)v).getText();
+        Toast.makeText(this, "You clicked on " + title, Toast.LENGTH_SHORT).show();
+    }
+
 }
