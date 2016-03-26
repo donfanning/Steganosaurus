@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -49,10 +48,10 @@ public class DecryptActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = getLayoutInflater().inflate(R.layout.popup_image, null);
-        ImageView imgv = (ImageView)view.findViewById(R.id.decrypted_popup_image);
+        ImageView imgv = (ImageView)view.findViewById(R.id.decrypt_popup_image);
         if (imgv != null)
             imgv.setImageBitmap(decryptedImage);
-        Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back);
+        Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

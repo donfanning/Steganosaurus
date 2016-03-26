@@ -63,7 +63,7 @@
             android:layout_weight="1" >
 
             <Button
-                android:id="@+id/hide_secrets"
+                android:id="@+id/main_encrypt_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:text="@string/encrypt_button_text"
@@ -74,7 +74,7 @@
                 android:onClick="encrypt" />
 
             <Button
-                android:id="@+id/show_secrets"
+                android:id="@+id/main_decrypt_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:text="@string/decrypt_button_text"
@@ -92,7 +92,7 @@
             android:layout_weight="1" >
 
             <Button
-                android:id="@+id/share_secrets"
+                android:id="@+id/main_share_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:text="Share secrets"
@@ -103,7 +103,7 @@
                 android:onClick="share"/>
 
             <Button
-                android:id="@+id/secret_options"
+                android:id="@+id/main_options_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:text="Secret options"

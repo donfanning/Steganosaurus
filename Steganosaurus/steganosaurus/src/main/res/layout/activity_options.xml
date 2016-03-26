@@ -11,12 +11,13 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Options"
-        android:id="@+id/textView3"
+        android:id="@+id/options_title_txt"
         android:textStyle="bold"
         android:textSize="36dp"
         android:layout_marginTop="36dp"
         android:layout_marginBottom="30dp"
-        android:layout_marginLeft="30dp" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -32,7 +33,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Resolution:"
-            android:id="@+id/textView4"
+            android:id="@+id/options_res_txt"
             android:textSize="30dp"
             android:textColor="#fff"
             android:textStyle="bold" />
@@ -63,7 +64,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Compression:"
-            android:id="@+id/textView5"
+            android:id="@+id/options_comp_txt"
             android:textSize="28dp"
             android:textStyle="bold"
             android:textColor="#fff" />
@@ -89,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save options"
-            android:id="@+id/save_options_btn"
+            android:id="@+id/options_save_btn"
             android:padding="15dp"
             android:textSize="20dp"
             android:textStyle="bold"

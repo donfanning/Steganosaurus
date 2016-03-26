@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choose starting image"
-        android:id="@+id/textView"
+        android:id="@+id/encrypt_choose_start_txt"
         android:textSize="24sp"
         android:paddingTop="12dp" />
 
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Take picture"
-        android:id="@+id/source_take_picture_btn"
+        android:id="@+id/encrypt_source_take_picture_btn"
         android:padding="15dp"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Choose image to hide"
-        android:id="@+id/textView2"
+        android:id="@+id/encrypt_choose_hide_txt"
         android:textSize="24sp"
         android:paddingTop="12dp" />
 
@@ -52,7 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Take picture"
-        android:id="@+id/hidden_take_picture_btn"
+        android:id="@+id/encrypt_hidden_take_picture_btn"
         android:padding="15dp"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Encrypt"
-            android:id="@+id/encrypt_button"
+            android:id="@+id/encrypt_encrypt_btn"
             android:textSize="24sp"
             android:background="#04e499"
             android:padding="15dp"
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/back_button_text"
-            android:id="@+id/encrypt_back"
+            android:id="@+id/encrypt_back_btn"
             android:textSize="24sp"
             android:background="#eca923"
             android:padding="15dp"
