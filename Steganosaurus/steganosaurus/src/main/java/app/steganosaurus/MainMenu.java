@@ -10,6 +10,9 @@ import android.widget.Toast;
 import app.steganosaurus.Utility.Const;
 import steganosaurus.R;
 
+/**
+ * Launcher app. Contains app title and logo, and main menu
+ */
 public class MainMenu extends AppCompatActivity {
 
     @Override
@@ -23,21 +26,37 @@ public class MainMenu extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     * Callback. Starts encryption activity
+     * @param v the button that was clicked
+     */
     public void encrypt(View v) {
         Intent i = new Intent(this, EncryptActivity.class);
         startActivityForResult(i, Const.ENCRYPT_CODE);
     }
 
+    /**
+     * Callback. Starts decryption activity
+     * @param v the button that was clicked
+     */
     public void decrypt(View v) {
         Intent i = new Intent(this, DecryptActivity.class);
         startActivityForResult(i, Const.DECRYPT_CODE);
     }
 
+    /**
+     * Callback. Starts sharing activity
+     * @param v the button that was clicked
+     */
     public void share(View v) {
         String title = (String)((Button)v).getText();
         Toast.makeText(this, "You clicked on " + title, Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Callback. Starts options activity
+     * @param v the button that was clicked
+     */
     public void showOptions(View v) {
         Intent i = new Intent(this, OptionsActivity.class);
         startActivity(i);

@@ -17,7 +17,10 @@ import app.steganosaurus.Utility.GalleryManager;
 import app.steganosaurus.Utility.MediaManager;
 import steganosaurus.R;
 
-
+/**
+ * Activity class for steganography itself. Allows user to
+ * select pictures to mix together.
+ */
 public class EncryptActivity extends AppCompatActivity {
 
     Bitmap selectedBasePicture;
@@ -25,7 +28,6 @@ public class EncryptActivity extends AppCompatActivity {
     Bitmap cameraPicture;
     Uri cameraImageUri;
 
-    GalleryManager galleryManager;
     MediaManager mediaManager;
 
     @Override
@@ -33,15 +35,24 @@ public class EncryptActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encrypt);
 
-        galleryManager = new GalleryManager(this);
         mediaManager = new MediaManager(this);
     }
 
+    /**
+     * Callback. Takes selectedBasePicture and encrypts selectedPictureToHide in it
+     * @param v the button that was clicked
+     */
     public void encrypt(View v) {
         String button_title = (String) ((Button)v).getText();
         Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Callback. Allows user to take picture with the device's camera
+     * request code depends on clicked button's id. MediaManager starts
+     * the camera activity for result
+     * @param v the button that was ciicked
+     */
     public void takePicture(View v) {
         int requestCode = 0;
         int id = v.getId();
@@ -54,6 +65,12 @@ public class EncryptActivity extends AppCompatActivity {
         cameraImageUri = mediaManager.takePicture(requestCode);
     }
 
+    /**
+     * Callback. allows user to select picture from their device
+     * request code depends on the view that was clicked.
+     * galleryManager starts the selection activity for result.
+     * @param v the button that was clicked
+     */
     public void getStoredPicturesFromDevice(View v) {
         int requestCode = 0;
         int id = v.getId();
@@ -63,9 +80,13 @@ public class EncryptActivity extends AppCompatActivity {
         else if (id == R.id.encrypt_hidden_image)
             requestCode = Const.PICK_HIDDEN_IMAGE_REQUEST;
 
-        galleryManager.getStoredPicturesFromDevice(requestCode);
+        mediaManager.getStoredPicturesFromDevice(requestCode);
     }
 
+    /**
+     * Callback. Allows user to return to previous activity
+     * @param v the button that was clicked
+     */
     public void backHome(View v) {
         this.finish();
     }
@@ -78,7 +99,7 @@ public class EncryptActivity extends AppCompatActivity {
             case Const.PICK_SOURCE_IMAGE_REQUEST:
             case Const.PICK_HIDDEN_IMAGE_REQUEST:
                 if (data.getData() != null) {
-                    Bitmap selectedPicture = galleryManager.getSelectedPictureBitmap(requestCode, data);
+                    Bitmap selectedPicture = mediaManager.getSelectedPictureBitmap(requestCode, data);
                     if (requestCode == Const.PICK_SOURCE_IMAGE_REQUEST)
                         selectedBasePicture = selectedPicture;
                     else

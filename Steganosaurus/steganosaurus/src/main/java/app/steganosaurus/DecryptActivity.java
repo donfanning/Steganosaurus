@@ -18,11 +18,17 @@ import java.io.IOException;
 
 import app.steganosaurus.Utility.Const;
 import app.steganosaurus.Utility.GalleryManager;
+import app.steganosaurus.Utility.MediaManager;
 import app.steganosaurus.Utility.Steganograph;
 import steganosaurus.R;
 
+/**
+ * Activity class to analyse a picture and return if there is
+ * a hidden picture inside it
+ */
 public class DecryptActivity extends AppCompatActivity {
 
+    MediaManager mediaManager;
     GalleryManager galleryManager;
     Steganograph steganograph;
     Uri selectedPictureUri = null;
@@ -33,14 +39,25 @@ public class DecryptActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decrypt);
+        mediaManager = new MediaManager(this);
         galleryManager = new GalleryManager(this);
         steganograph = new Steganograph();
     }
 
+    /**
+     * Callback. Allows user to select a picture from their device.
+     * galleryManager starts the selection activity for result.
+     * @param v the button that was clicked
+     */
     public void getStoredPicturesFromDevice(View v) {
-        galleryManager.getStoredPicturesFromDevice(Const.PICK_DECRYPT_IMAGE_REQUEST);
+        mediaManager.getStoredPicturesFromDevice(Const.PICK_DECRYPT_IMAGE_REQUEST);
     }
 
+    /**
+     * Callback. Method to decrypt the selected image and show the result
+     * in a dialog box to the user.
+     * @param v the button that was clicked
+     */
     public void decryptPicture(View v) {
         if (decryptedImage == null)
             decryptedImage = steganograph.decodePicture(selectedPicture);
@@ -62,6 +79,10 @@ public class DecryptActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Callback. Allows user to return to previous activity.
+     * @param v the button that was clicked
+     */
     public void backHome(View v) {
         this.finish();
     }

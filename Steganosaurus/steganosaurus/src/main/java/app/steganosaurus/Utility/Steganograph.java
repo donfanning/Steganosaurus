@@ -5,6 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 
+/**
+ * Class to make the actual steganography
+ */
 public class Steganograph {
 
     public Bitmap encodePicture(Bitmap destinationPicture, Bitmap pictureToHide) {

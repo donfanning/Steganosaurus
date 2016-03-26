@@ -1,5 +1,8 @@
 package app.steganosaurus.Utility;
 
+/**
+ * a simple class acting as an Enum for request codes
+ */
 public class Const {
 
     public static final int ENCRYPT_CODE = 1;
