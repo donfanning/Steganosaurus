@@ -104,8 +104,6 @@ public class EncryptActivity extends AppCompatActivity {
                 } catch (Exception e) { e.printStackTrace(); }
                 break;
         }
-        else
-            Toast.makeText(this, "Something went wrong on activity result!", Toast.LENGTH_LONG).show();
     }
 
 }

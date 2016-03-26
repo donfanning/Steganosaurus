@@ -21,19 +21,14 @@ public class MainMenu extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //user taps one menu button, start corresponding activity
     }
 
     public void encrypt(View v) {
-        String button_title = (String)((Button)v).getText();
-        Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, EncryptActivity.class);
         startActivityForResult(i, Const.ENCRYPT_CODE);
     }
 
     public void decrypt(View v) {
-        String button_title = (String)((Button)v).getText();
-        Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, DecryptActivity.class);
         startActivityForResult(i, Const.DECRYPT_CODE);
     }
@@ -44,8 +39,6 @@ public class MainMenu extends AppCompatActivity {
     }
 
     public void showOptions(View v) {
-        String title = (String)((Button)v).getText();
-        Toast.makeText(this, "You clicked on " + title, Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, OptionsActivity.class);
         startActivity(i);
     }

@@ -47,9 +47,6 @@ public class OptionsActivity extends AppCompatActivity {
     }
 
     public void saveOptions(View v) {
-        String title = (String) ((Button)v).getText();
-        Toast.makeText(this, "you clicked on " + title, Toast.LENGTH_SHORT).show();
-
         Spinner resolutionSpinner = (Spinner)findViewById(R.id.options_resolution_spinner);
         Spinner compressionSpinner = (Spinner)findViewById(R.id.options_compression_spinner);
 
@@ -63,8 +60,6 @@ public class OptionsActivity extends AppCompatActivity {
             propertiesManager.setProperty("resolution", selectedResolution);
         if (!selectedCompression.equals(compProp))
             propertiesManager.setProperty("compression", selectedCompression);
-
-        Toast.makeText(this, "res: " + propertiesManager.getProperty("resolution") + " comp: " + propertiesManager.getProperty("compression"), Toast.LENGTH_LONG).show();
     }
 
     public void goBack(View v) {

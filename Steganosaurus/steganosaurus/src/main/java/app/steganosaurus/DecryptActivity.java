@@ -81,8 +81,6 @@ public class DecryptActivity extends AppCompatActivity {
                 if (imgbtn != null)
                     imgbtn.setImageBitmap(selectedPicture);
             }
-            else
-                Toast.makeText(this, "An error occurred at picture selection.", Toast.LENGTH_SHORT).show();
         }
         catch(IOException e) {e.printStackTrace();}
     }
