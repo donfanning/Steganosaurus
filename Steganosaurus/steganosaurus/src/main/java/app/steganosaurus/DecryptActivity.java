@@ -17,7 +17,6 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import app.steganosaurus.Utility.Const;
-import app.steganosaurus.Utility.GalleryManager;
 import app.steganosaurus.Utility.MediaManager;
 import app.steganosaurus.Utility.Steganograph;
 import steganosaurus.R;
@@ -29,7 +28,6 @@ import steganosaurus.R;
 public class DecryptActivity extends AppCompatActivity {
 
     MediaManager mediaManager;
-    GalleryManager galleryManager;
     Steganograph steganograph;
     Uri selectedPictureUri = null;
     Bitmap selectedPicture = null;
@@ -40,7 +38,6 @@ public class DecryptActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_decrypt);
         mediaManager = new MediaManager(this);
-        galleryManager = new GalleryManager(this);
         steganograph = new Steganograph();
     }
 

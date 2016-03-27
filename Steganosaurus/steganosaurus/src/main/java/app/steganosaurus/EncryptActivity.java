@@ -1,5 +1,6 @@
 package app.steganosaurus;
 
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,13 +9,15 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import app.steganosaurus.Utility.Const;
-import app.steganosaurus.Utility.GalleryManager;
 import app.steganosaurus.Utility.MediaManager;
+import app.steganosaurus.Utility.Steganograph;
 import steganosaurus.R;
 
 /**
@@ -29,6 +32,7 @@ public class EncryptActivity extends AppCompatActivity {
     Uri cameraImageUri;
 
     MediaManager mediaManager;
+    Steganograph steganograph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,7 @@ public class EncryptActivity extends AppCompatActivity {
         setContentView(R.layout.activity_encrypt);
 
         mediaManager = new MediaManager(this);
+        steganograph = new Steganograph();
     }
 
     /**
@@ -45,6 +50,24 @@ public class EncryptActivity extends AppCompatActivity {
     public void encrypt(View v) {
         String button_title = (String) ((Button)v).getText();
         Toast.makeText(this, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
+
+        Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,selectedPictureToHide);
+
+        final Dialog dialog = new Dialog(this);
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        View view = getLayoutInflater().inflate(R.layout.popup_image, null);
+        ImageView imgv = (ImageView)view.findViewById(R.id.decrypt_popup_image);
+        if (imgv != null)
+            imgv.setImageBitmap(resultingImage);
+        Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
+        b_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.hide();
+            }
+        });
+        dialog.setContentView(view);
+        dialog.show();
     }
 
     /**
