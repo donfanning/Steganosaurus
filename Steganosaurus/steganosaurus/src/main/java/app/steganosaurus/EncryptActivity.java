@@ -138,10 +138,14 @@ public class EncryptActivity extends AppCompatActivity {
                     this.getContentResolver().notifyChange(cameraImageUri, null);
                     ContentResolver cr = this.getContentResolver();
                     cameraPicture = MediaStore.Images.Media.getBitmap(cr, cameraImageUri);
-                    if (requestCode == Const.REQUEST_SOURCE_IMAGE_CAPTURE)
+                    if (requestCode == Const.REQUEST_SOURCE_IMAGE_CAPTURE) {
                         id = R.id.encrypt_source_image;
-                    else
+                        selectedBasePicture = cameraPicture;
+                    }
+                    else {
                         id = R.id.encrypt_hidden_image;
+                        selectedPictureToHide = cameraPicture;
+                    }
                     ImageButton imgbtn = (ImageButton) findViewById(id);
                     if (imgbtn != null)
                         imgbtn.setImageBitmap(cameraPicture);
