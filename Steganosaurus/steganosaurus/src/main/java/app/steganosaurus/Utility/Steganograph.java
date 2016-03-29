@@ -7,6 +7,7 @@ import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.sql.Time;
 import java.util.Random;
 
@@ -28,9 +29,9 @@ public class Steganograph {
     public Bitmap encodePicture(Bitmap destinationPicture, Bitmap pictureToHide) {
         //Create pixel arrays
         Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
-        Pixel[] toHidePixels = getRGBFromBitmap(pictureToHide);
+        byte[] toHideByte = getBytesFromBitmap(pictureToHide);
         //This is where the magic happens
-        Pixel[] resultingPixels = encodePixels(destinationPixel, toHidePixels);
+        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
         //Transform pixels into a new bitmap
         Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
         return resultingBitmap;
@@ -41,12 +42,13 @@ public class Steganograph {
         return picture;
     }
 
-    //Translates the image into a string and encode the string into the given image
-    private Pixel[] encodePixels(Pixel[] destPixels, Pixel[] hidePixels){
+    //Add Header and foodter to data and encode it into destination pixels
+    private Pixel[] encodePixels(Pixel[] destPixels, byte[] data){
+        /*
+        //randomize test
         Random rand = new Random();
         int min = 0;
         int max = 0;
-
         for (Pixel P:destPixels) {
             P.R += rand.nextInt((max - min) + 1) + min;
             P.G += rand.nextInt((max - min) + 1) + min;
@@ -55,16 +57,11 @@ public class Steganograph {
             P.R = Math.min(255, Math.max(0, P.R));
             P.G = Math.min(255, Math.max(0, P.G));
             P.B = Math.min(255, Math.max(0, P.B));
-
         }
-
-        /*
-        String testMessage = "";
-        for(int i =0; i<10000; i++) {
-            testMessage += '0';
-        }
-        hideMessageInPixels(destPixels,7, testMessage);
         */
+
+        hideBytesInPixels(destPixels,1, data);
+
 
         return destPixels;
     }
@@ -90,36 +87,63 @@ public class Steganograph {
         return destPixels;
     }
 
-    private void hideMessageInPixels(Pixel[] destPixels,  int bitPerColor, String message) {
+
+    // convert from bitmap to byte array
+    public byte[] getBytesFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream  stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
+    }
+
+    // Return true if bit at position of byte is 1
+    public boolean bitIsSet(byte b, int position) {
+       return ((b >> position) & 1) == 1;
+    }
+
+    private void hideBytesInPixels(Pixel[] destPixels,  int bitPerColor, byte[] message) {
+        if(bitPerColor > 8) {
+            Log.v("Error","Trying to encode on more than 8 bits");
+        }
+
         int curBit = 0;
         int curPixel = 0;
         int curColor = 0; //0=red, 1=green, 2=blue
 
-        for(int i =0; i<message.length(); i++){
-            switch(curColor){
-                case 0 :
-                    if(message.charAt(i) == '1') destPixels[curPixel].R = (byte) (destPixels[curPixel].R | (1 << (7-curBit)));
-                    else  destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (7-curBit)));
-                    break;
-                case 1 :
-                    if(message.charAt(i) == '1') destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (7-curBit)));
-                    else  destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (7-curBit)));
-                    break;
-                case 2 :
-                    if(message.charAt(i) == '1') destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (7-curBit)));
-                    else  destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (7-curBit)));
-                    break;
-            }
+        for(int i =0; i<message.length; i++){
+            for(int j=0; j<8; j++) {
+                switch (curColor) {
+                    case 0:
+                        //Add 1
+                        if (bitIsSet(message[i],j))
+                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R | (1 << (curBit - 7)));
+                        //Add 0
+                        else
+                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit - 7)));
+                        break;
+                    case 1:
+                        if (bitIsSet(message[i],j))
+                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit - 7)));
+                        else
+                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit - 7)));
+                        break;
+                    case 2:
+                        if (bitIsSet(message[i],j))
+                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit - 7)));
+                        else
+                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit - 7)));
+                        break;
+                }
 
-            curBit++;
-            if(curBit >= bitPerColor) {
-                curBit = 0;
-                curColor++;
-                if(curColor >= 3){
-                    curPixel++;
-                    curColor = 0;
-                    if(curPixel >= destPixels.length){
-                        i = message.length(); //Stop
+                curBit++;
+                if (curBit >= bitPerColor) {
+                    curBit = 0;
+                    curColor++;
+                    if (curColor >= 3) {
+                        curPixel++;
+                        curColor = 0;
+                        if (curPixel >= destPixels.length) {
+                            i = message.length; //Stop
+                        }
                     }
                 }
             }
