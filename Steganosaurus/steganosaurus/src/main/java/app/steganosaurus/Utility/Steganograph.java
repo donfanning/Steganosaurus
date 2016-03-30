@@ -16,6 +16,9 @@ import java.util.Random;
  */
 public class Steganograph {
 
+    /**
+     * Pixel object used to easily modify and access rgb of pixels
+     */
     protected class Pixel{
         public int R,G,B;
         Pixel(int r, int g, int b){
@@ -26,6 +29,12 @@ public class Steganograph {
         Pixel(){ R=0; G=0; B=0; }
     }
 
+    /**
+     * Encode a picture into another
+     * @param destinationPicture bitmap to encrypt into
+     * @param pictureToHide bitmap to hide in destination picture
+     * @return
+     */
     public Bitmap encodePicture(Bitmap destinationPicture, Bitmap pictureToHide) {
         //Create pixel arrays
         Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
@@ -37,42 +46,43 @@ public class Steganograph {
         return resultingBitmap;
     }
 
+    /**
+     * TODO : Decode given bitmap
+     * @param picture
+     * @return
+     */
     public Bitmap decodePicture(Bitmap picture) {
 
         return picture;
     }
 
-    //Add Header and foodter to data and encode it into destination pixels
+    /**
+     * Add Header and foodter to data and encode it into destination pixels
+     * @param destPixels pixel array to encrypt into
+     * @param data data to encrypt in bytes
+     * @return
+     */
     private Pixel[] encodePixels(Pixel[] destPixels, byte[] data){
-        /*
-        //randomize test
-        Random rand = new Random();
-        int min = 0;
-        int max = 0;
-        for (Pixel P:destPixels) {
-            P.R += rand.nextInt((max - min) + 1) + min;
-            P.G += rand.nextInt((max - min) + 1) + min;
-            P.B += rand.nextInt((max - min) + 1) + min;
 
-            P.R = Math.min(255, Math.max(0, P.R));
-            P.G = Math.min(255, Math.max(0, P.G));
-            P.B = Math.min(255, Math.max(0, P.B));
-        }
-        */
+        //TODO : Add a header which will be recognized when decrypting
+        //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
 
+        //Encrypt data in destination pixels
         hideBytesInPixels(destPixels,1, data);
-
 
         return destPixels;
     }
 
-    //Encode the given string into the destination pixels
-    private Pixel[] encodeString(Pixel[] destPixels, String rawData){
+    /**
+     * Randomize the pixels of the pixel array
+     * @param destPixels pixels to encrypt into
+     * @return
+     */
+    private Pixel[] randomizePixels(Pixel[] destPixels){
         Random rand = new Random();
         int min = -30;
         int max = 30;
 
-
         for (Pixel P:destPixels) {
             P.R += rand.nextInt((max - min) + 1) + min;
             P.G += rand.nextInt((max - min) + 1) + min;
@@ -87,19 +97,33 @@ public class Steganograph {
         return destPixels;
     }
 
-
-    // convert from bitmap to byte array
+    /**
+     * convert from bitmap to byte array
+     * @param bitmap bitmap to transfer to bytes
+     * @return
+     */
     public byte[] getBytesFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream  stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
         return stream.toByteArray();
     }
 
-    // Return true if bit at position of byte is 1
+    /**
+     * Check if bit is set. Return true if bit at position of byte is 1
+     * @param b byte to check
+     * @param position position (bit) to check
+     * @return
+     */
     public boolean bitIsSet(byte b, int position) {
        return ((b >> position) & 1) == 1;
     }
 
+    /**
+     * Hide given bytes into the destination pixel array
+     * @param destPixels Pixel array to store the message on
+     * @param bitPerColor amount of bit per byte to modify.
+     * @param message message in bytes to encore
+     */
     private void hideBytesInPixels(Pixel[] destPixels,  int bitPerColor, byte[] message) {
         if(bitPerColor > 8) {
             Log.v("Error","Trying to encode on more than 8 bits");
@@ -150,7 +174,12 @@ public class Steganograph {
         }
     }
 
-    // Convert pixel into a string
+    /**
+     * DEPRECATED. WE NOW USE A BYTE ARRAY.
+     * Returns a string of 0 and 1 represneting the bits of the pixel
+     * @param pixel
+     * @return
+     */
     private String getPixelData(Pixel pixel){
         String pData = "";
         //Red
@@ -169,6 +198,11 @@ public class Steganograph {
         return pData;
     }
 
+    /**
+     * Transform given bitmap into a pixel array
+     * @param receivedPicture
+     * @return
+     */
     private Pixel[] getRGBFromBitmap(Bitmap receivedPicture){
         int imgW = receivedPicture.getWidth();
         int imgH = receivedPicture.getHeight();
@@ -180,6 +214,7 @@ public class Steganograph {
         for (int y = 0; y < imgH; y++){
             for (int x = 0; x < imgW; x++) {
                 int index = y * imgW + x;
+
                 RGBPixels[index] = new Pixel();
                 RGBPixels[index].R = (pix[index] >> 16) & 0xff;     //bitwise shifting
                 RGBPixels[index].G = (pix[index] >> 8) & 0xff;
@@ -191,6 +226,13 @@ public class Steganograph {
         return RGBPixels;
     }
 
+    /**
+     * Transform given pixel array into a bitmap
+     * @param rgbData pixel array
+     * @param imgW width of image
+     * @param imgH height of image
+     * @return
+     */
     private Bitmap getBitmapFromRGB(Pixel[] rgbData, int imgW, int imgH){
         Bitmap bitmapFromRGB;
         int[] bitmapPixelValues = new int[imgW * imgH];
@@ -201,7 +243,7 @@ public class Steganograph {
                 int index = y * imgW + x;
                 int R = (rgbData[index].R);  //bitwise shifting
                 int G = (rgbData[index].G);
-                int B = rgbData[index].B;
+                int B = (rgbData[index].B);
 
                 bitmapPixelValues[index] = 0xff000000 | (R << 16) | (G << 8) | B;
             }
