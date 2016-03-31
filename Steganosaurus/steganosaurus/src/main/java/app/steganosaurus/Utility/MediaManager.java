@@ -131,11 +131,16 @@ public class MediaManager {
         // Context.getExternalMediaDir().
         File path = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        File file = new File(path, "DemoPicture.jpg");
+        String name = "img";
+        int nameNumber = 0;
+        File file = new File(path, name + ".jpg");
 
         try {
             // Make sure the Pictures directory exists.
             path.mkdirs();
+            // Check if file with name already exists, if so, append number at the end
+            while(file.exists())
+                file = new File(path, name + (++nameNumber) + ".jpg");
 
             // Very simple code to copy a picture from the application's
             // resource into the external file.  Note that this code does

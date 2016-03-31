@@ -51,7 +51,11 @@ public class EncryptActivity extends AppCompatActivity {
     public void encrypt(View v) {
         final String button_title = (String) ((Button)v).getText();
         final Context c = this;
-        Toast.makeText(c, "You clicked on " + button_title, Toast.LENGTH_SHORT).show();
+
+        if(selectedBasePicture == null || selectedPictureToHide == null) {
+            Toast.makeText(c, "Select two pictures to proceed ", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         final Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,selectedPictureToHide);
 
