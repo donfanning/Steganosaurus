@@ -62,9 +62,16 @@ public class EncryptActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = getLayoutInflater().inflate(R.layout.popup_image_encrypt, null);
-        ImageView imgv = (ImageView)view.findViewById(R.id.result_popup_image);
-        if (imgv != null)
-            imgv.setImageBitmap(resultingImage);
+        //Imageviews
+        ImageView imgvBefore = (ImageView)view.findViewById(R.id.result_popup_image_before);
+        if (imgvBefore != null)
+            imgvBefore.setImageBitmap(selectedBasePicture);
+        ImageView imgvAfter = (ImageView)view.findViewById(R.id.result_popup_image_after);
+        if (imgvAfter != null)
+            imgvAfter.setImageBitmap(resultingImage);
+
+
+        //Buttons
         Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
         Button b_save = (Button)view.findViewById(R.id.decrypt_popup_save_btn);
         b_ok.setOnClickListener(new View.OnClickListener() {

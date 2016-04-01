@@ -62,7 +62,7 @@ public class DecryptActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = getLayoutInflater().inflate(R.layout.popup_image, null);
-        ImageView imgv = (ImageView)view.findViewById(R.id.result_popup_image);
+        ImageView imgv = (ImageView)view.findViewById(R.id.result_popup_image_after);
         if (imgv != null)
             imgv.setImageBitmap(decryptedImage);
         Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);

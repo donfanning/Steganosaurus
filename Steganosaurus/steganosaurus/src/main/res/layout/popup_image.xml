@@ -7,7 +7,7 @@
     <ImageView
         android:layout_width="350dp"
         android:layout_height="350dp"
-        android:id="@+id/result_popup_image"
+        android:id="@+id/result_popup_image_after"
         android:layout_gravity="center" />
 
     <Button

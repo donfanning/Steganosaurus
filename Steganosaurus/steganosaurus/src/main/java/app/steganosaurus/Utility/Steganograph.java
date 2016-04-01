@@ -9,6 +9,9 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.sql.Time;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -53,6 +56,8 @@ public class Steganograph {
      */
     public Bitmap decodePicture(Bitmap picture) {
 
+        byte[] retrievedData = getDataFromBitmap(picture);
+
         return picture;
     }
 
@@ -68,7 +73,7 @@ public class Steganograph {
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
 
         //Encrypt data in destination pixels
-        hideBytesInPixels(destPixels,1, data);
+        hideBytesInPixels(destPixels,4, data);
 
         return destPixels;
     }
@@ -172,6 +177,32 @@ public class Steganograph {
                 }
             }
         }
+    }
+
+    private byte[] getDataFromBitmap(Bitmap picture){
+        int bitPerColor = 4; //TODO : Get this from the picture data
+        List<Byte> data = new ArrayList<Byte>();
+
+
+        //Convert list to array
+        Byte[] dataAsByte = new Byte[data.size()];
+        return(toPrimitives(data.toArray(dataAsByte)));
+    }
+
+    /**
+     * Method Byte to byte
+     * @param oBytes Bytes to convert
+     * @return bytes
+     */
+    byte[] toPrimitives(Byte[] oBytes)
+    {
+        byte[] bytes = new byte[oBytes.length];
+
+        for(int i = 0; i < oBytes.length; i++) {
+            bytes[i] = oBytes[i];
+        }
+
+        return bytes;
     }
 
     /**
