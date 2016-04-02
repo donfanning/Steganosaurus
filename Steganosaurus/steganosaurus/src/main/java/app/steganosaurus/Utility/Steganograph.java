@@ -1,6 +1,7 @@
 package app.steganosaurus.Utility;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -50,15 +51,15 @@ public class Steganograph {
     }
 
     /**
-     * TODO : Decode given bitmap
+     * Get byte array from bitmap and create a bitmap with it
      * @param picture
      * @return
      */
     public Bitmap decodePicture(Bitmap picture) {
 
         byte[] retrievedData = getDataFromBitmap(picture);
-
-        return picture;
+        //TODO : This currently only return a bitmap. Later, we will want this to return the correct media
+        return getBitmapFromBytes(retrievedData);
     }
 
     /**
@@ -113,6 +114,10 @@ public class Steganograph {
         return stream.toByteArray();
     }
 
+    public Bitmap getBitmapFromBytes(byte[] bitmapData){
+        return(BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length));
+    }
+
     /**
      * Check if bit is set. Return true if bit at position of byte is 1
      * @param b byte to check
@@ -144,22 +149,22 @@ public class Steganograph {
                     case 0:
                         //Add 1
                         if (bitIsSet(message[i],j))
-                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R | (1 << (curBit - 7)));
+                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R | (1 << (curBit)));
                         //Add 0
                         else
-                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit - 7)));
+                            destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit)));
                         break;
                     case 1:
                         if (bitIsSet(message[i],j))
-                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit - 7)));
+                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit)));
                         else
-                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit - 7)));
+                            destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit)));
                         break;
                     case 2:
                         if (bitIsSet(message[i],j))
-                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit - 7)));
+                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit)));
                         else
-                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit - 7)));
+                            destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit)));
                         break;
                 }
 
@@ -179,14 +184,65 @@ public class Steganograph {
         }
     }
 
+    /**
+     * Get a bitmap and look into it to see if there is a hidden message in it. If so, return it.
+     * @param picture to analyse
+     * @return null if no message, otherwise message as byte array
+     */
     private byte[] getDataFromBitmap(Bitmap picture){
         int bitPerColor = 4; //TODO : Get this from the picture data
+        int bitmask = (int)Math.pow(2,bitPerColor);
         List<Byte> data = new ArrayList<Byte>();
+        int byteIndex = 0;
+        int imgW = picture.getWidth();
+        int imgH = picture.getHeight();
+        int R,G,B;
+
+
+        for (int y = 0; y < imgH; y++){
+            for (int x = 0; x < imgW; x++) {
+                int index = y * imgW + x;
+                //Get R G B bytes
+                R = (picture.getPixel(x,y) >> 16) & 0xff;     //bitwise shifting
+                G = (picture.getPixel(x,y) >> 8) & 0xff;
+                B = picture.getPixel(x,y) & 0xff;
+                //extract data from R G B Bytes
+                for(int i = (8-bitPerColor); i < 8 ; i++){
+                    AddDataToByte(data,byteIndex,bitIsSet((byte)R,i)); //TODO : this cast might not work as intended
+                    if(++byteIndex >= 8) byteIndex = 0;
+                }
+                for(int i = (8-bitPerColor); i < 8 ; i++){
+                    AddDataToByte(data,byteIndex,bitIsSet((byte)G,i));
+                    if(++byteIndex >= 8) byteIndex = 0;
+                }
+                for(int i = (8-bitPerColor); i < 8 ; i++){
+                    AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
+                    if(++byteIndex >= 8) byteIndex = 0;
+                }
+            }
+        }
 
 
         //Convert list to array
         Byte[] dataAsByte = new Byte[data.size()];
         return(toPrimitives(data.toArray(dataAsByte)));
+    }
+
+    /**
+     * Set a bit at index ByteIndex on the last byte of the given byte list. Used when creating the
+     * byte list when decrypting an image.
+     * @param data list of bytes (content of decryption)
+     * @param ByteIndex Current index in byte we are modifying
+     * @param isSet does the bit need to be set or not
+     */
+    private void AddDataToByte(List<Byte> data, int ByteIndex, Boolean isSet){
+        if(ByteIndex == 0)  data.add(new Byte("0"));
+
+        if (isSet)
+            data.set(data.size() - 1, (byte) (data.get(data.size() - 1) | (1 << (ByteIndex))));
+        else
+            data.set(data.size() - 1, (byte) (data.get(data.size() - 1) & ~(1 << (ByteIndex))));
+
     }
 
     /**
