@@ -59,6 +59,7 @@ public class Steganograph {
 
         byte[] retrievedData = getDataFromBitmap(picture);
         //TODO : This currently only return a bitmap. Later, we will want this to return the correct media
+
         return getBitmapFromBytes(retrievedData);
     }
 
@@ -72,9 +73,14 @@ public class Steganograph {
 
         //TODO : Add a header which will be recognized when decrypting
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
+        int bitPerByte = 4;
+        int amtOfBytesToEncodeInto = data.length * (8-bitPerByte);
+        byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
+        byte[] headerWithData = concatByteArray(header, data);
+        Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
-        hideBytesInPixels(destPixels,4, data);
+        hideBytesInPixels(destPixels,bitPerByte, headerWithData);
 
         return destPixels;
     }
@@ -101,31 +107,6 @@ public class Steganograph {
         }
 
         return destPixels;
-    }
-
-    /**
-     * convert from bitmap to byte array
-     * @param bitmap bitmap to transfer to bytes
-     * @return
-     */
-    public byte[] getBytesFromBitmap(Bitmap bitmap) {
-        ByteArrayOutputStream  stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-        return stream.toByteArray();
-    }
-
-    public Bitmap getBitmapFromBytes(byte[] bitmapData){
-        return(BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length));
-    }
-
-    /**
-     * Check if bit is set. Return true if bit at position of byte is 1
-     * @param b byte to check
-     * @param position position (bit) to check
-     * @return
-     */
-    public boolean bitIsSet(byte b, int position) {
-       return ((b >> position) & 1) == 1;
     }
 
     /**
@@ -184,6 +165,8 @@ public class Steganograph {
         }
     }
 
+
+
     /**
      * Get a bitmap and look into it to see if there is a hidden message in it. If so, return it.
      * @param picture to analyse
@@ -198,10 +181,34 @@ public class Steganograph {
         int imgH = picture.getHeight();
         int R,G,B;
 
+        /* Values to separate header and body */
+        int amtOfBytesHeader = 4 * (8-bitPerColor);
+        int amtOfBytesBody  = 0;
+        int currentByte = 0;
+        boolean inHeader = true;
 
+        /* Get Image Body */
         for (int y = 0; y < imgH; y++){
             for (int x = 0; x < imgW; x++) {
-                int index = y * imgW + x;
+                if(inHeader && currentByte == amtOfBytesHeader) {
+                    inHeader = false;
+                    // Get value in current data (this is the amount of bytes we need to check to get the body's data)
+                    Byte[] dataAsByte = new Byte[data.size()];
+                    amtOfBytesBody = getIntFromBytes(toPrimitives(data.toArray(dataAsByte)));
+                    //Reset data
+                    data = new ArrayList<Byte>();
+                    //Here, we see that that the header is not correctly encrypted or decrypted
+                    //Hence we know that either the encryption or the decryption is currently problematic
+                    //It is most likely the encryption since the visual result seem wrong on encrypted images
+                    Log.w("debug : ", "Decoded " + currentByte + " bytes in header");
+                    Log.w("debug : ", "Decoding " + amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
+                    currentByte = 0; //Reset current byte
+                } else if(!inHeader && currentByte == amtOfBytesBody) {
+                    x = imgW;
+                    y = imgH;
+                    break;
+                }
+
                 //Get R G B bytes
                 R = (picture.getPixel(x,y) >> 16) & 0xff;     //bitwise shifting
                 G = (picture.getPixel(x,y) >> 8) & 0xff;
@@ -219,6 +226,8 @@ public class Steganograph {
                     AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
+                //Increase current Byte
+                ++currentByte;
             }
         }
 
@@ -245,21 +254,18 @@ public class Steganograph {
 
     }
 
-    /**
-     * Method Byte to byte
-     * @param oBytes Bytes to convert
-     * @return bytes
-     */
-    byte[] toPrimitives(Byte[] oBytes)
-    {
-        byte[] bytes = new byte[oBytes.length];
 
-        for(int i = 0; i < oBytes.length; i++) {
-            bytes[i] = oBytes[i];
-        }
+    /* UTILS TO CONVERT VARIOUS TYPES AND MODIFY BYTES */
 
-        return bytes;
+    public byte[] concatByteArray(byte[] a, byte[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+        byte[] c = new byte[aLen+bLen];
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+        return c;
     }
+
 
     /**
      * DEPRECATED. WE NOW USE A BYTE ARRAY.
@@ -338,5 +344,79 @@ public class Steganograph {
 
         bitmapFromRGB = Bitmap.createBitmap(bitmapPixelValues,imgW,imgH, Bitmap.Config.ARGB_8888);
         return bitmapFromRGB;
+    }
+
+
+    /**
+     * Convert an integer to byte array
+     * @param i integer to convert
+     * @return
+     */
+    private byte[] getBytesFromInt(int i)
+    {
+        byte[] result = new byte[4];
+
+        result[0] = (byte) (i >> 24);
+        result[1] = (byte) (i >> 16);
+        result[2] = (byte) (i >> 8);
+        result[3] = (byte) (i);
+
+        return result;
+    }
+
+    /**
+     * Convert a byte array into an int
+     * @param bytes byte array to convert to integer
+     * @return
+     */
+    private int getIntFromBytes(byte[] bytes) {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+
+    /**
+     * convert from bitmap to byte array
+     * @param bitmap bitmap to transfer to bytes
+     * @return
+     */
+    public byte[] getBytesFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream  stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
+    }
+
+    /**
+     * convert from byte array to bitmap
+     * @param bitmapData bite array date to convert
+     * @return
+     */
+    public Bitmap getBitmapFromBytes(byte[] bitmapData){
+        return(BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length));
+    }
+
+    /**
+     * Check if bit is set. Return true if bit at position of byte is 1
+     * @param b byte to check
+     * @param position position (bit) to check
+     * @return
+     */
+    public boolean bitIsSet(byte b, int position) {
+        return ((b >> position) & 1) == 1;
+    }
+
+
+    /**
+     * Method Byte to byte
+     * @param oBytes Bytes to convert
+     * @return bytes
+     */
+    byte[] toPrimitives(Byte[] oBytes)
+    {
+        byte[] bytes = new byte[oBytes.length];
+
+        for(int i = 0; i < oBytes.length; i++) {
+            bytes[i] = oBytes[i];
+        }
+
+        return bytes;
     }
 }
