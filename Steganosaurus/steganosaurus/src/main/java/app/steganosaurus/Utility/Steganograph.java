@@ -168,9 +168,9 @@ public class Steganograph {
 
     /* Object containing Values to separate header and body */
     protected class DecodingStatusObject {
-        int amtOfBytesHeader = 0;
-        int amtOfBytesBody  = 0;
-        int currentByte = 0;
+        long amtOfBytesHeader = 0;
+        long amtOfBytesBody  = 0;
+        long currentByte = 0;
         boolean inHeader = true;
         int x = 0;
         int y = 0;
@@ -180,8 +180,8 @@ public class Steganograph {
         protected DecodingStatusObject() {
             x = 0;
             y = 0;
-            int amtOfBytesBody  = 0;
-            int currentByte = 0;
+            long amtOfBytesBody  = 0;
+            long currentByte = 0;
             boolean inHeader = true;
         }
     }
@@ -204,8 +204,12 @@ public class Steganograph {
         decodingStatusObject.imgH = picture.getHeight();
         decodingStatusObject.amtOfBytesHeader =  4 * (8/bitPerColor);
 
+        /* Debug */
+        int testInt = 24;
+        byte[] testBA = getBytesFromInt((testInt));
+        Log.w("Debug : ", "original : " + testInt + "   converted : " + getIntFromBytes(testBA));
 
-        /* Get Image Body */
+        /* Get Image Body and Header */
         for (decodingStatusObject.y = 0; decodingStatusObject.y < decodingStatusObject.imgH; decodingStatusObject.y++){
             for (decodingStatusObject.x = 0; decodingStatusObject.x < decodingStatusObject.imgW; decodingStatusObject.x++) {
 
@@ -216,7 +220,7 @@ public class Steganograph {
                 B = picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) & 0xff;
                 //extract data from R G B Bytes
                 for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
+                    Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)R ,i));
                     AddDataToByte(data, byteIndex, bitIsSet((byte) R, i)); //TODO : this cast might not work as intended
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
@@ -225,7 +229,7 @@ public class Steganograph {
 
 
                 for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
+                    Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i + "   set : " +  bitIsSet((byte)G ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)G ,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
@@ -234,7 +238,7 @@ public class Steganograph {
 
 
                 for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
+                    Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)B ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
@@ -267,19 +271,22 @@ public class Steganograph {
      * @return
      */
     private boolean CheckStopDecodingConditions(DecodingStatusObject statusObj,  List<Byte> data, int bitPerColor){
+
+
         if(statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesHeader) {
             statusObj.inHeader = false;
             // Get value in current data (this is the amount of bytes we need to check to get the body's data)
             Byte[] dataAsByte = new Byte[data.size()];
-            statusObj.amtOfBytesBody = getIntFromBytes(toPrimitives(data.toArray(dataAsByte)));
-            //Reset data
-            data = new ArrayList<Byte>();
+            statusObj.amtOfBytesBody = getUnsignedLongFromBytes(toPrimitives(data.toArray(dataAsByte)));
+            LogByteArray(toPrimitives(data.toArray(dataAsByte)));
             //Here, we see that that the header is not correctly encrypted or decrypted
             //Hence we know that either the encryption or the decryption is currently problematic
             //It is most likely the encryption since the visual result seem wrong on encrypted images
             Log.w("debug : ", "Decoded " + statusObj.currentByte + " bytes in header");
             Log.w("debug : ", "Decoding " + statusObj.amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
             //Log.w("debug : ", "test amt bytes " + testAmtBytes);
+            //Reset data
+            data = new ArrayList<Byte>();
             statusObj.currentByte = 0; //Reset current byte
             //temporary ignore image body
             statusObj.x = statusObj.imgW;
@@ -404,6 +411,15 @@ public class Steganograph {
         return result;
     }
 
+    private void LogByteArray(byte[] bytesToLog){
+        String result = "";
+        for(int i = 0; i < bytesToLog.length; i++) {
+            result += String.format("%8s", Integer.toBinaryString(bytesToLog[i] & 0xFF)).replace(' ', '0');
+            result += " ";
+        }
+        Log.w("Debug : ", "Logged Byte Array : " + result);
+    }
+
     /**
      * Convert a byte array into an int
      * @param bytes byte array to convert to integer
@@ -411,6 +427,19 @@ public class Steganograph {
      */
     private int getIntFromBytes(byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+    private int getIntFromBytes(Byte[] bytes) {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+    private long getUnsignedLongFromBytes(byte[] bytes) {
+        int i = getIntFromBytes(bytes);
+        long l = 0x00000000FFFFFFFFl & (long) i;
+        return l;
+    }
+    private long getUnsignedLongFromBytes(Byte[] bytes) {
+        int i = getIntFromBytes(bytes);
+        long l = 0x00000000FFFFFFFFl & (long) i;
+        return l;
     }
 
     /**
