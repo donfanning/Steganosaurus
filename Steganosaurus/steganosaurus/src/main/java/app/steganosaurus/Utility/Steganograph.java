@@ -75,7 +75,8 @@ public class Steganograph {
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
         int bitPerByte = 8;
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
-        byte[] header = getBytesFromInt(0);
+        byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
+        LogByteArray(header); // log header for debug purposes
         byte[] headerWithData = concatByteArray(header, data);
         Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
