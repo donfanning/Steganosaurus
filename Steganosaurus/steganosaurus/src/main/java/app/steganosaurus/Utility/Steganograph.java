@@ -73,14 +73,15 @@ public class Steganograph {
 
         //TODO : Add a header which will be recognized when decrypting
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
-        int bitPerByte = 4;
-        int amtOfBytesToEncodeInto = data.length * (8-bitPerByte);
-        byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
+        int bitPerByte = 8;
+        int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
+        byte[] header = getBytesFromInt(0);
         byte[] headerWithData = concatByteArray(header, data);
         Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
         hideBytesInPixels(destPixels,bitPerByte, headerWithData);
+
 
         return destPixels;
     }
@@ -92,13 +93,13 @@ public class Steganograph {
      */
     private Pixel[] randomizePixels(Pixel[] destPixels){
         Random rand = new Random();
-        int min = -30;
-        int max = 30;
+        int min = -80;
+        int max = 80;
 
         for (Pixel P:destPixels) {
             P.R += rand.nextInt((max - min) + 1) + min;
-            P.G += rand.nextInt((max - min) + 1) + min;
-            P.B += rand.nextInt((max - min) + 1) + min;
+            //P.G += rand.nextInt((max - min) + 1) + min;
+            //P.B += rand.nextInt((max - min) + 1) + min;
 
             P.R = Math.min(255, Math.max(0, P.R));
             P.G = Math.min(255, Math.max(0, P.G));
@@ -165,7 +166,25 @@ public class Steganograph {
         }
     }
 
+    /* Object containing Values to separate header and body */
+    protected class DecodingStatusObject {
+        int amtOfBytesHeader = 0;
+        int amtOfBytesBody  = 0;
+        int currentByte = 0;
+        boolean inHeader = true;
+        int x = 0;
+        int y = 0;
+        int imgW  = 0;
+        int imgH = 0;
 
+        protected DecodingStatusObject() {
+            x = 0;
+            y = 0;
+            int amtOfBytesBody  = 0;
+            int currentByte = 0;
+            boolean inHeader = true;
+        }
+    }
 
     /**
      * Get a bitmap and look into it to see if there is a hidden message in it. If so, return it.
@@ -173,61 +192,58 @@ public class Steganograph {
      * @return null if no message, otherwise message as byte array
      */
     private byte[] getDataFromBitmap(Bitmap picture){
-        int bitPerColor = 4; //TODO : Get this from the picture data
+        /* Values to separate header and body */
+        DecodingStatusObject decodingStatusObject = new DecodingStatusObject();
+        int bitPerColor = 8; //TODO : Get this from the picture data
         int bitmask = (int)Math.pow(2,bitPerColor);
         List<Byte> data = new ArrayList<Byte>();
         int byteIndex = 0;
-        int imgW = picture.getWidth();
-        int imgH = picture.getHeight();
         int R,G,B;
 
-        /* Values to separate header and body */
-        int amtOfBytesHeader = 4 * (8-bitPerColor);
-        int amtOfBytesBody  = 0;
-        int currentByte = 0;
-        boolean inHeader = true;
+        decodingStatusObject.imgW = picture.getWidth();
+        decodingStatusObject.imgH = picture.getHeight();
+        decodingStatusObject.amtOfBytesHeader =  4 * (8/bitPerColor);
+
 
         /* Get Image Body */
-        for (int y = 0; y < imgH; y++){
-            for (int x = 0; x < imgW; x++) {
-                if(inHeader && currentByte == amtOfBytesHeader) {
-                    inHeader = false;
-                    // Get value in current data (this is the amount of bytes we need to check to get the body's data)
-                    Byte[] dataAsByte = new Byte[data.size()];
-                    amtOfBytesBody = getIntFromBytes(toPrimitives(data.toArray(dataAsByte)));
-                    //Reset data
-                    data = new ArrayList<Byte>();
-                    //Here, we see that that the header is not correctly encrypted or decrypted
-                    //Hence we know that either the encryption or the decryption is currently problematic
-                    //It is most likely the encryption since the visual result seem wrong on encrypted images
-                    Log.w("debug : ", "Decoded " + currentByte + " bytes in header");
-                    Log.w("debug : ", "Decoding " + amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
-                    currentByte = 0; //Reset current byte
-                } else if(!inHeader && currentByte == amtOfBytesBody) {
-                    x = imgW;
-                    y = imgH;
-                    break;
-                }
+        for (decodingStatusObject.y = 0; decodingStatusObject.y < decodingStatusObject.imgH; decodingStatusObject.y++){
+            for (decodingStatusObject.x = 0; decodingStatusObject.x < decodingStatusObject.imgW; decodingStatusObject.x++) {
+
 
                 //Get R G B bytes
-                R = (picture.getPixel(x,y) >> 16) & 0xff;     //bitwise shifting
-                G = (picture.getPixel(x,y) >> 8) & 0xff;
-                B = picture.getPixel(x,y) & 0xff;
+                R = (picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) >> 16) & 0xff;     //bitwise shifting
+                G = (picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) >> 8) & 0xff;
+                B = picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) & 0xff;
                 //extract data from R G B Bytes
                 for(int i = (8-bitPerColor); i < 8 ; i++){
-                    AddDataToByte(data,byteIndex,bitIsSet((byte)R,i)); //TODO : this cast might not work as intended
+                    Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
+                    AddDataToByte(data, byteIndex, bitIsSet((byte) R, i)); //TODO : this cast might not work as intended
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
+                ++decodingStatusObject.currentByte;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+
+
                 for(int i = (8-bitPerColor); i < 8 ; i++){
-                    AddDataToByte(data,byteIndex,bitIsSet((byte)G,i));
+                    Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
+                    AddDataToByte(data,byteIndex,bitIsSet((byte)G ,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
+                ++decodingStatusObject.currentByte;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+
+
                 for(int i = (8-bitPerColor); i < 8 ; i++){
+                    Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i );
                     AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
-                //Increase current Byte
-                ++currentByte;
+                ++decodingStatusObject.currentByte;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+
+
+
+
             }
         }
 
@@ -235,6 +251,47 @@ public class Steganograph {
         //Convert list to array
         Byte[] dataAsByte = new Byte[data.size()];
         return(toPrimitives(data.toArray(dataAsByte)));
+    }
+
+    /**
+     * Check for conditions during decryption to change state. This require a lot of variable from
+     * previous method and needs to be called at different places. This is why a class storing various
+     * values is used.
+     *
+     * If we are in header, check for end of header. If found, get length of body and start clear data
+     * IF we are in body, check for end of body. If found, stop decrypting.
+     *
+     * @param statusObj Object containing various variables used to check decryption progress
+     * @param data data as a list of bytes
+     * @param bitPerColor amt of bit per color
+     * @return
+     */
+    private boolean CheckStopDecodingConditions(DecodingStatusObject statusObj,  List<Byte> data, int bitPerColor){
+        if(statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesHeader) {
+            statusObj.inHeader = false;
+            // Get value in current data (this is the amount of bytes we need to check to get the body's data)
+            Byte[] dataAsByte = new Byte[data.size()];
+            statusObj.amtOfBytesBody = getIntFromBytes(toPrimitives(data.toArray(dataAsByte)));
+            //Reset data
+            data = new ArrayList<Byte>();
+            //Here, we see that that the header is not correctly encrypted or decrypted
+            //Hence we know that either the encryption or the decryption is currently problematic
+            //It is most likely the encryption since the visual result seem wrong on encrypted images
+            Log.w("debug : ", "Decoded " + statusObj.currentByte + " bytes in header");
+            Log.w("debug : ", "Decoding " + statusObj.amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
+            //Log.w("debug : ", "test amt bytes " + testAmtBytes);
+            statusObj.currentByte = 0; //Reset current byte
+            //temporary ignore image body
+            statusObj.x = statusObj.imgW;
+            statusObj.y = statusObj.imgH;
+            statusObj.currentByte = statusObj.amtOfBytesBody;
+            return true;
+        } else if(!statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesBody) {
+            statusObj.x = statusObj.imgW;
+            statusObj.y = statusObj.imgH;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -266,30 +323,6 @@ public class Steganograph {
         return c;
     }
 
-
-    /**
-     * DEPRECATED. WE NOW USE A BYTE ARRAY.
-     * Returns a string of 0 and 1 represneting the bits of the pixel
-     * @param pixel
-     * @return
-     */
-    private String getPixelData(Pixel pixel){
-        String pData = "";
-        //Red
-        if(pixel.R < 10) pData += ("00" + pixel.R);
-        else if(pixel.R < 100) pData += ("0" + pixel.R);
-        else pData += pixel.R;
-        //Green
-        if(pixel.G < 10) pData += ("00" + pixel.G);
-        else if(pixel.G < 100) pData += ("0" + pixel.G);
-        else pData += pixel.G;
-        //Blue
-        if(pixel.B < 10) pData += ("00" + pixel.B);
-        else if(pixel.B < 100) pData += ("0" + pixel.B);
-        else pData += pixel.B;
-
-        return pData;
-    }
 
     /**
      * Transform given bitmap into a pixel array
@@ -328,21 +361,28 @@ public class Steganograph {
      */
     private Bitmap getBitmapFromRGB(Pixel[] rgbData, int imgW, int imgH){
         Bitmap bitmapFromRGB;
+
+        // create bitmap by modifying each pixel in succession
         int[] bitmapPixelValues = new int[imgW * imgH];
-
-
         for (int y = 0; y < imgH; y++){
             for (int x = 0; x < imgW; x++) {
                 int index = y * imgW + x;
-                int R = (rgbData[index].R);  //bitwise shifting
+                int R = (rgbData[index].R);
                 int G = (rgbData[index].G);
                 int B = (rgbData[index].B);
 
-                bitmapPixelValues[index] = 0xff000000 | (R << 16) | (G << 8) | B;
+
+                bitmapPixelValues[index] = 0xff000000 | ((R & 0xff) << 16) | ((G & 0xff) << 8) | (B & 0xff);
             }
         }
-
         bitmapFromRGB = Bitmap.createBitmap(bitmapPixelValues,imgW,imgH, Bitmap.Config.ARGB_8888);
+
+        /*
+        //TODO : Investigate using image.setRGB(0, 0, width, height, pixels, 0, width);
+        int[] pixels = new int[imgW * imgH * 3];
+        bitmapFromRGB.setPixels(pixels, 0, 0, 0, 0 imgW, imgH);
+        */
+
         return bitmapFromRGB;
     }
 
