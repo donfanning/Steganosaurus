@@ -20,6 +20,8 @@ import java.util.Random;
  */
 public class Steganograph {
 
+    public final int bitPerByte = 8;
+
     /**
      * Pixel object used to easily modify and access rgb of pixels
      */
@@ -47,6 +49,7 @@ public class Steganograph {
         Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
         //Transform pixels into a new bitmap
         Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
+
         return resultingBitmap;
     }
 
@@ -73,7 +76,6 @@ public class Steganograph {
 
         //TODO : Add a header which will be recognized when decrypting
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
-        int bitPerByte = 8;
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
         byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
         LogByteArray(header); // log header for debug purposes
@@ -102,9 +104,9 @@ public class Steganograph {
             //P.G += rand.nextInt((max - min) + 1) + min;
             //P.B += rand.nextInt((max - min) + 1) + min;
 
-            P.R = Math.min(255, Math.max(0, P.R));
-            P.G = Math.min(255, Math.max(0, P.G));
-            P.B = Math.min(255, Math.max(0, P.B));
+            P.R =  Math.min(255, Math.max(0, P.R));
+            P.G =  Math.min(255, Math.max(0, P.G));
+            P.B =  Math.min(255, Math.max(0, P.B));
 
         }
 
@@ -126,7 +128,11 @@ public class Steganograph {
         int curPixel = 0;
         int curColor = 0; //0=red, 1=green, 2=blue
 
+
+
+
         for(int i =0; i<message.length; i++){
+
             for(int j=0; j<8; j++) {
                 switch (curColor) {
                     case 0:
@@ -136,18 +142,36 @@ public class Steganograph {
                         //Add 0
                         else
                             destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit)));
+                        /*
+                        if(i < 4) {
+                            Log.w("Debug : ", "red at curpixel " + curPixel);
+                            LogByteArray((byte) destPixels[curPixel].R);
+                        }
+                        */
                         break;
                     case 1:
                         if (bitIsSet(message[i],j))
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit)));
                         else
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit)));
+                        /*
+                        if(i < 4) {
+                            Log.w("Debug : ", "green at curpixel " + curPixel);
+                            LogByteArray((byte) destPixels[curPixel].G);
+                        }
+                        */
                         break;
                     case 2:
                         if (bitIsSet(message[i],j))
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit)));
                         else
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit)));
+                        /*
+                        if(i < 4) {
+                            Log.w("Debug : ", "blue at curpixel " + curPixel);
+                            LogByteArray((byte) destPixels[curPixel].B);
+                        }
+                        */
                         break;
                 }
 
@@ -164,7 +188,10 @@ public class Steganograph {
                     }
                 }
             }
+
+
         }
+
     }
 
     /* Object containing Values to separate header and body */
@@ -195,20 +222,18 @@ public class Steganograph {
     private byte[] getDataFromBitmap(Bitmap picture){
         /* Values to separate header and body */
         DecodingStatusObject decodingStatusObject = new DecodingStatusObject();
-        int bitPerColor = 8; //TODO : Get this from the picture data
-        int bitmask = (int)Math.pow(2,bitPerColor);
+        int bitmask = (int)Math.pow(2,bitPerByte);
         List<Byte> data = new ArrayList<Byte>();
         int byteIndex = 0;
         int R,G,B;
 
         decodingStatusObject.imgW = picture.getWidth();
         decodingStatusObject.imgH = picture.getHeight();
-        decodingStatusObject.amtOfBytesHeader =  4 * (8/bitPerColor);
+        decodingStatusObject.amtOfBytesHeader =  4 * (8/bitPerByte);
 
         /* Debug */
         int testInt = 24;
         byte[] testBA = getBytesFromInt((testInt));
-        Log.w("Debug : ", "original : " + testInt + "   converted : " + getIntFromBytes(testBA));
 
         /* Get Image Body and Header */
         for (decodingStatusObject.y = 0; decodingStatusObject.y < decodingStatusObject.imgH; decodingStatusObject.y++){
@@ -220,31 +245,31 @@ public class Steganograph {
                 G = (picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) >> 8) & 0xff;
                 B = picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) & 0xff;
                 //extract data from R G B Bytes
-                for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)R ,i));
+                for(int i = (8-bitPerByte); i < 8 ; i++){
+                    //Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)R ,i));
                     AddDataToByte(data, byteIndex, bitIsSet((byte) R, i)); //TODO : this cast might not work as intended
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
                 ++decodingStatusObject.currentByte;
-                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
-                for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i + "   set : " +  bitIsSet((byte)G ,i));
+                for(int i = (8-bitPerByte); i < 8 ; i++){
+                    //Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i + "   set : " +  bitIsSet((byte)G ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)G ,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
                 ++decodingStatusObject.currentByte;
-                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
-                for(int i = (8-bitPerColor); i < 8 ; i++){
-                    Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)B ,i));
+                for(int i = (8-bitPerByte); i < 8 ; i++){
+                    //Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)B ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
                 ++decodingStatusObject.currentByte;
-                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerColor)) break;
+                if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
 
@@ -350,9 +375,9 @@ public class Steganograph {
                 int index = y * imgW + x;
 
                 RGBPixels[index] = new Pixel();
-                RGBPixels[index].R = (pix[index] >> 16) & 0xff;     //bitwise shifting
-                RGBPixels[index].G = (pix[index] >> 8) & 0xff;
-                RGBPixels[index].B = pix[index] & 0xff;
+                RGBPixels[index].R =  ((pix[index] >> 16) & 0xff);     //bitwise shifting
+                RGBPixels[index].G =  ((pix[index] >> 8) & 0xff);
+                RGBPixels[index].B =  (pix[index] & 0xff);
 
             }
         }
@@ -420,6 +445,13 @@ public class Steganograph {
         }
         Log.w("Debug : ", "Logged Byte Array : " + result);
     }
+
+    private void LogByteArray(byte byteToLog){
+        byte[] bArray = new byte[1];
+        bArray[0] = byteToLog;
+        LogByteArray(bArray);
+    }
+
 
     /**
      * Convert a byte array into an int
