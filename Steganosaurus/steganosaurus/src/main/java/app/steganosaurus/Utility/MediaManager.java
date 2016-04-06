@@ -149,7 +149,7 @@ public class MediaManager {
             // not currently mounted this will silently fail.
             OutputStream os = new FileOutputStream(file);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            imageToSave.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+            imageToSave.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] data = stream.toByteArray();
             os.write(data);
             os.close();

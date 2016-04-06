@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Steganograph {
 
-    public final int bitPerByte = 8;
+    public final int bitPerByte = 4;
 
     /**
      * Pixel object used to easily modify and access rgb of pixels
@@ -50,6 +50,9 @@ public class Steganograph {
         //Transform pixels into a new bitmap
         Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
 
+        //Used to test decryption without going through save and load image process
+        //resultingBitmap = decodePicture(resultingBitmap);
+
         return resultingBitmap;
     }
 
@@ -78,8 +81,9 @@ public class Steganograph {
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
         byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
-        LogByteArray(header); // log header for debug purposes
         byte[] headerWithData = concatByteArray(header, data);
+        Log.w("debug : ", "HEADER IN ENCRYPT : ");
+        LogByteArray(header); // log header for debug purposes
         Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
@@ -142,36 +146,18 @@ public class Steganograph {
                         //Add 0
                         else
                             destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit)));
-                        /*
-                        if(i < 4) {
-                            Log.w("Debug : ", "red at curpixel " + curPixel);
-                            LogByteArray((byte) destPixels[curPixel].R);
-                        }
-                        */
                         break;
                     case 1:
                         if (bitIsSet(message[i],j))
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit)));
                         else
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit)));
-                        /*
-                        if(i < 4) {
-                            Log.w("Debug : ", "green at curpixel " + curPixel);
-                            LogByteArray((byte) destPixels[curPixel].G);
-                        }
-                        */
                         break;
                     case 2:
                         if (bitIsSet(message[i],j))
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit)));
                         else
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit)));
-                        /*
-                        if(i < 4) {
-                            Log.w("Debug : ", "blue at curpixel " + curPixel);
-                            LogByteArray((byte) destPixels[curPixel].B);
-                        }
-                        */
                         break;
                 }
 
@@ -231,9 +217,6 @@ public class Steganograph {
         decodingStatusObject.imgH = picture.getHeight();
         decodingStatusObject.amtOfBytesHeader =  4 * (8/bitPerByte);
 
-        /* Debug */
-        int testInt = 24;
-        byte[] testBA = getBytesFromInt((testInt));
 
         /* Get Image Body and Header */
         for (decodingStatusObject.y = 0; decodingStatusObject.y < decodingStatusObject.imgH; decodingStatusObject.y++){
@@ -272,11 +255,8 @@ public class Steganograph {
                 if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
-
-
             }
         }
-
 
         //Convert list to array
         Byte[] dataAsByte = new Byte[data.size()];
@@ -304,21 +284,16 @@ public class Steganograph {
             // Get value in current data (this is the amount of bytes we need to check to get the body's data)
             Byte[] dataAsByte = new Byte[data.size()];
             statusObj.amtOfBytesBody = getUnsignedLongFromBytes(toPrimitives(data.toArray(dataAsByte)));
+
+            Log.w("debug : ", "HEADER IN DECRYPT : ");
             LogByteArray(toPrimitives(data.toArray(dataAsByte)));
-            //Here, we see that that the header is not correctly encrypted or decrypted
-            //Hence we know that either the encryption or the decryption is currently problematic
-            //It is most likely the encryption since the visual result seem wrong on encrypted images
             Log.w("debug : ", "Decoded " + statusObj.currentByte + " bytes in header");
             Log.w("debug : ", "Decoding " + statusObj.amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
             //Log.w("debug : ", "test amt bytes " + testAmtBytes);
             //Reset data
             data = new ArrayList<Byte>();
             statusObj.currentByte = 0; //Reset current byte
-            //temporary ignore image body
-            statusObj.x = statusObj.imgW;
-            statusObj.y = statusObj.imgH;
-            statusObj.currentByte = statusObj.amtOfBytesBody;
-            return true;
+
         } else if(!statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesBody) {
             statusObj.x = statusObj.imgW;
             statusObj.y = statusObj.imgH;
