@@ -127,39 +127,65 @@ public class Steganograph {
         if(bitPerColor > 8) {
             Log.v("Error","Trying to encode on more than 8 bits");
         }
+        if(bitPerColor < 1) {
+            Log.v("Error","Trying to encode on less than 1 bit");
+        }
+
 
         int curBit = 0;
         int curPixel = 0;
         int curColor = 0; //0=red, 1=green, 2=blue
-
+        byte curModifiedByte;
 
 
 
         for(int i =0; i<message.length; i++){
+            //Calculate modified byte
+            if(i<4 ) curModifiedByte = InverseByteBasedOnEncryption(message[i], bitPerColor, true);
+            else curModifiedByte = InverseByteBasedOnEncryption(message[i], bitPerColor, false);
 
-            for(int j=0; j<8; j++) {
+            //Debug BEFORE
+            /*
+            if (i < 4) {
+                Log.w("Debug : ", "before");
+                byte[] dBytes = new byte[4 * (8 / bitPerByte)];
+                for (int j = 0; j < dBytes.length; j += 3) {
+                    dBytes[j] = (byte) destPixels[j / 3].R;
+                    if (j + 1 < dBytes.length) dBytes[j + 1] = (byte) destPixels[j / 3].G;
+                    if (j + 2 < dBytes.length) dBytes[j + 2] = (byte) destPixels[j / 3].B;
+                }
+                LogByteArray(dBytes);
+            }
+            */
+
+            for (int j = 0; j < 8; j++) {
                 switch (curColor) {
                     case 0:
                         //Add 1
-                        if (bitIsSet(message[i],j))
+                        if (bitIsSet(curModifiedByte, j))
                             destPixels[curPixel].R = (byte) (destPixels[curPixel].R | (1 << (curBit)));
-                        //Add 0
+                            //Add 0
                         else
                             destPixels[curPixel].R = (byte) (destPixels[curPixel].R & ~(1 << (curBit)));
                         break;
                     case 1:
-                        if (bitIsSet(message[i],j))
+                        //Add 1
+                        if (bitIsSet(curModifiedByte, j))
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G | (1 << (curBit)));
+                            //Add 0
                         else
                             destPixels[curPixel].G = (byte) (destPixels[curPixel].G & ~(1 << (curBit)));
                         break;
                     case 2:
-                        if (bitIsSet(message[i],j))
+                        //Add 1
+                        if (bitIsSet(curModifiedByte, j))
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B | (1 << (curBit)));
+                            //Add 0
                         else
                             destPixels[curPixel].B = (byte) (destPixels[curPixel].B & ~(1 << (curBit)));
                         break;
                 }
+
 
                 curBit++;
                 if (curBit >= bitPerColor) {
@@ -173,7 +199,26 @@ public class Steganograph {
                         }
                     }
                 }
+
+
             }
+
+            /*
+            //Debug AFTER
+            if (i < 4) {
+                Log.w("Debug : ", "after");
+                byte[] dBytes = new byte[4 * (8 / bitPerByte)];
+                for (int j = 0; j < dBytes.length; j += 3) {
+                    dBytes[j] = (byte) destPixels[j / 3].R;
+                    if (j + 1 < dBytes.length) dBytes[j + 1] = (byte) destPixels[j / 3].G;
+                    if (j + 2 < dBytes.length) dBytes[j + 2] = (byte) destPixels[j / 3].B;
+                }
+                LogByteArray(dBytes);
+
+            }
+            */
+
+
 
 
         }
@@ -228,16 +273,16 @@ public class Steganograph {
                 G = (picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) >> 8) & 0xff;
                 B = picture.getPixel(decodingStatusObject.x,decodingStatusObject.y) & 0xff;
                 //extract data from R G B Bytes
-                for(int i = (8-bitPerByte); i < 8 ; i++){
+                for(int i = 0; i < bitPerByte ; i++){
                     //Log.w("Debug : ", "Checking Red byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)R ,i));
-                    AddDataToByte(data, byteIndex, bitIsSet((byte) R, i)); //TODO : this cast might not work as intended
+                    AddDataToByte(data, byteIndex, bitIsSet((byte) R, i));
                     if(++byteIndex >= 8) byteIndex = 0;
                 }
                 ++decodingStatusObject.currentByte;
                 if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
-                for(int i = (8-bitPerByte); i < 8 ; i++){
+                for(int i = 0; i < bitPerByte ; i++){
                     //Log.w("Debug : ", "Checking Green byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i + "   set : " +  bitIsSet((byte)G ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)G ,i));
                     if(++byteIndex >= 8) byteIndex = 0;
@@ -246,7 +291,7 @@ public class Steganograph {
                 if(CheckStopDecodingConditions(decodingStatusObject, data, bitPerByte)) break;
 
 
-                for(int i = (8-bitPerByte); i < 8 ; i++){
+                for(int i = 0; i < bitPerByte ; i++){
                     //Log.w("Debug : ", "Checking Blue byte of (x,y) " + decodingStatusObject.x + " " + decodingStatusObject.y + " at bit " + i  + "   set : " +  bitIsSet((byte)B ,i));
                     AddDataToByte(data,byteIndex,bitIsSet((byte)B,i));
                     if(++byteIndex >= 8) byteIndex = 0;
@@ -316,6 +361,9 @@ public class Steganograph {
             data.set(data.size() - 1, (byte) (data.get(data.size() - 1) | (1 << (ByteIndex))));
         else
             data.set(data.size() - 1, (byte) (data.get(data.size() - 1) & ~(1 << (ByteIndex))));
+
+        //Restore the byte to its normal disposition. The bit was modified before encryption and must be restored
+        if(ByteIndex == 7) data.set(data.size() - 1, InverseByteBasedOnEncryption(data.get(data.size() - 1),bitPerByte,false));
 
     }
 
@@ -495,5 +543,38 @@ public class Steganograph {
         }
 
         return bytes;
+    }
+
+    /**
+     * Inverts the given input byte the correct way to fit the encoding based on the mat of byte per color
+     * @param inputByte
+     * @param bitPerColor
+     * @param debug
+     * @return
+     */
+    byte InverseByteBasedOnEncryption(byte inputByte, int bitPerColor, boolean debug){
+        byte resultByte;
+
+        if(bitPerColor == 8) resultByte = inputByte;
+        else if(bitPerColor == 4) resultByte = (byte)(((inputByte >> 4) & 15) | ((inputByte << 4) & 240));
+
+        else if(bitPerColor == 2) resultByte = (byte)(  ((inputByte & 192) >> 6) | ((inputByte & 48) >> 2) |
+                                                        ((inputByte & 12) << 2) | ((inputByte & 3) << 6));
+
+        else if(bitPerColor == 1) resultByte = (byte)(  ((inputByte & 128) >> 7) | ((inputByte & 64) >> 5) |
+                                                        ((inputByte & 32) >> 3) | ((inputByte & 16) >> 1) |
+                                                        ((inputByte & 8) << 7) | ((inputByte & 4) << 5) |
+                                                        ((inputByte & 2) << 3) | ((inputByte & 1) << 1) );
+        else {
+            Log.v("Error", "Tyring to encode on unsupported amount of bytes");
+            resultByte = (inputByte);
+        }
+
+        if(debug){
+            LogByteArray(inputByte);
+            LogByteArray(resultByte);
+        }
+
+        return resultByte;
     }
 }
