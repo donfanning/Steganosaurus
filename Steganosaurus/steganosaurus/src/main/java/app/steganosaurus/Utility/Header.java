@@ -61,10 +61,9 @@ public class Header {
      * @param type The type of data
      * @param noBytesToDecrypt The number of bytes to decrypt
      * @param bitPerBytes The number of modified bit per bytes
-     * @param encodedData The encoded data without the header
      * @return
      */
-    public static Byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes, byte[] encodedData) {
+    public static byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes) {
         List<Byte> header = new ArrayList<Byte>();
 
         //Verification Symbols
@@ -90,11 +89,7 @@ public class Header {
         //Bit per bytes
         header.addAll(IntToByte(bitPerBytes));
 
-        //Add header to encoded data
-        byte[] rawHeader = Steganograph.toPrimitives(header.toArray(new Byte[header.size()]));
-        encodedData = Steganograph.concatByteArray(rawHeader, encodedData);
-
-        return Steganograph.CastPrimitiveByteToByteWrapper(encodedData);
+        return Steganograph.toPrimitives(header.toArray(new Byte[header.size()]));
     }
 
     private List<Byte> RemoveAtStart(List<Byte> data, int bytesToRemove){
