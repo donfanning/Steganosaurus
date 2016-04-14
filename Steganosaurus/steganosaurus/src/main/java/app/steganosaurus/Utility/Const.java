@@ -15,4 +15,8 @@ public class Const {
 
     public static final int REQUEST_SOURCE_IMAGE_CAPTURE = 6;
     public static final int REQUEST_HIDDEN_IMAGE_CAPTURE = 7;
+
+    public static final int DATA_TYPE_PHOTO = 0;
+    public static final int DATA_TYPE_TEXT = 1;
+    public static final int DATA_TYPE_SOUND = 2;
 }
