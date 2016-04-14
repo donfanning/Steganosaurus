@@ -388,7 +388,7 @@ public class Steganograph {
 
     /* UTILS TO CONVERT VARIOUS TYPES AND MODIFY BYTES */
 
-    public byte[] concatByteArray(byte[] a, byte[] b) {
+    public static byte[] concatByteArray(byte[] a, byte[] b) {
         int aLen = a.length;
         int bLen = b.length;
         byte[] c = new byte[aLen+bLen];
@@ -464,7 +464,7 @@ public class Steganograph {
      * Logs the given byte array
      * @param bytesToLog bytes to Log
      */
-    private void LogByteArray(byte[] bytesToLog){
+    private static void LogByteArray(byte[] bytesToLog){
         String result = "";
         for(int i = 0; i < bytesToLog.length; i++) {
             result += String.format("%8s", Integer.toBinaryString(bytesToLog[i] & 0xFF)).replace(' ', '0');
@@ -488,7 +488,7 @@ public class Steganograph {
      * @param i integer to convert
      * @return
      */
-    private byte[] getBytesFromInt(int i)
+    public static byte[] getBytesFromInt(int i)
     {
         byte[] result = new byte[4];
 
@@ -506,10 +506,10 @@ public class Steganograph {
      * @param bytes byte array to convert to integer
      * @return
      */
-    private int getIntFromBytes(byte[] bytes) {
+    public static int getIntFromBytes(byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
-    private int getIntFromBytes(Byte[] bytes) {
+    public static int getIntFromBytes(Byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
     private long getUnsignedLongFromBytes(byte[] bytes) {
@@ -577,7 +577,7 @@ public class Steganograph {
      * @param oBytes Bytes to convert
      * @return bytes
      */
-    byte[] toPrimitives(Byte[] oBytes)
+    public static byte[] toPrimitives(Byte[] oBytes)
     {
         byte[] bytes = new byte[oBytes.length];
 
@@ -586,6 +586,19 @@ public class Steganograph {
         }
 
         return bytes;
+    }
+
+    /**
+     * Turn an array of primitive form byte into an array of it's it's wrapper form Byte
+     * @param rawData the byte array to cast
+     * @return an array of Byte
+     */
+    public static Byte[] CastPrimitiveByteToByteWrapper(byte[] rawData) {
+        Byte[] data = new Byte[rawData.length];
+        for (int i = 0; i < data.length; ++i) {
+            data[i] = Byte.valueOf(rawData[i]);
+        }
+        return data;
     }
 
     /**
@@ -619,5 +632,24 @@ public class Steganograph {
         }
 
         return resultByte;
+    }
+
+    /**
+     * Get a sub array of a byte array
+     * @param startingIndex The starting index of the sub array
+     * @param length The length from the starting index composing the sub array
+     * @return A sub array of bytes
+     */
+    public static Byte[] GetSubArrayOfByteArray(List<Byte> data, int startingIndex, int length) {
+        if (startingIndex + length - 1 > data.size()) {
+            Log.v("Error : ", "Trying to get a sub array outisde the range of the array");
+            return null;
+        }
+
+        Byte[] subArray = new Byte[length];
+        for (int i = startingIndex; i < startingIndex + length; ++i) {
+            subArray[i - startingIndex] = data.get(i);
+        }
+        return subArray;
     }
 }

@@ -16,7 +16,16 @@ public class Const {
     public static final int REQUEST_SOURCE_IMAGE_CAPTURE = 6;
     public static final int REQUEST_HIDDEN_IMAGE_CAPTURE = 7;
 
-    public static final int DATA_TYPE_PHOTO = 0;
-    public static final int DATA_TYPE_TEXT = 1;
-    public static final int DATA_TYPE_SOUND = 2;
+    public enum DataType {
+        PHOTO(0),
+        TEXT(1),
+        SOUND(2);
+
+        private final int id;
+        DataType(int id) {this.id = id;}
+        public int getValue() {return id;}
+        public static final int PHOTO_VALUE = 0;
+        public static final int TEXT_VALUE = 1;
+        public static final int SOUND_VALUE = 2;
+    }
 }
