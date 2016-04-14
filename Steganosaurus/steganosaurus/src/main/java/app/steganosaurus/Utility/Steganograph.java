@@ -95,10 +95,9 @@ public class Steganograph {
      */
     private Pixel[] encodePixels(Pixel[] destPixels, byte[] data){
 
-        //TODO : Add a header which will be recognized when decrypting
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
-        byte[] header = getBytesFromInt(amtOfBytesToEncodeInto);
+        byte[] header = Header.EncodeHeader(Const.DataType.PHOTO, amtOfBytesToEncodeInto, bitPerByte);
         byte[] headerWithData = concatByteArray(header, data);
         Log.w("debug : ", "HEADER IN ENCRYPT : ");
         LogByteArray(header); // log header for debug purposes
