@@ -27,7 +27,7 @@ public class Header {
     }
 
     public static Byte[] EncodeHeader(int dataType, int noBytesToDecrypt, int bitPerBytes) {
-        
+        return null;
     }
 
     /**
