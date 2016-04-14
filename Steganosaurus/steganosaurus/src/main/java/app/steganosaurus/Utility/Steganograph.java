@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public class Steganograph {
         //Create pixel arrays
         Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
         byte[] toHideByte = getBytesFromBitmap(pictureToHide);
+
         //This is where the magic happens
         Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
         //Transform pixels into a new bitmap
@@ -52,6 +54,22 @@ public class Steganograph {
 
         //Used to test decryption without going through save and load image process
         //resultingBitmap = decodePicture(resultingBitmap);
+
+        return resultingBitmap;
+    }
+
+    public Bitmap encodeString(Bitmap destinationPicture, String stringToHide) {
+        //Create pixel arrays
+        Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
+        byte[] toHideByte = getBytesFromString(stringToHide);
+
+        //This is where the magic happens
+        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
+        //Transform pixels into a new bitmap
+        Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
+
+        //Used to test decryption without going through save and load image process
+        //Log.w("Debug : " , decodePicture_String(resultingBitmap));
 
         return resultingBitmap;
     }
@@ -442,6 +460,28 @@ public class Steganograph {
         return bitmapFromRGB;
     }
 
+    /**
+     * Logs the given byte array
+     * @param bytesToLog bytes to Log
+     */
+    private void LogByteArray(byte[] bytesToLog){
+        String result = "";
+        for(int i = 0; i < bytesToLog.length; i++) {
+            result += String.format("%8s", Integer.toBinaryString(bytesToLog[i] & 0xFF)).replace(' ', '0');
+            result += " ";
+        }
+        Log.w("Debug : ", "Logged Byte Array : " + result);
+    }
+
+    /**
+     * Logs the given byte
+     * @param byteToLog byte to Log
+     */
+    private void LogByteArray(byte byteToLog){
+        byte[] bArray = new byte[1];
+        bArray[0] = byteToLog;
+        LogByteArray(bArray);
+    }
 
     /**
      * Convert an integer to byte array
@@ -458,21 +498,6 @@ public class Steganograph {
         result[3] = (byte) (i);
 
         return result;
-    }
-
-    private void LogByteArray(byte[] bytesToLog){
-        String result = "";
-        for(int i = 0; i < bytesToLog.length; i++) {
-            result += String.format("%8s", Integer.toBinaryString(bytesToLog[i] & 0xFF)).replace(' ', '0');
-            result += " ";
-        }
-        Log.w("Debug : ", "Logged Byte Array : " + result);
-    }
-
-    private void LogByteArray(byte byteToLog){
-        byte[] bArray = new byte[1];
-        bArray[0] = byteToLog;
-        LogByteArray(bArray);
     }
 
 
@@ -496,6 +521,24 @@ public class Steganograph {
         int i = getIntFromBytes(bytes);
         long l = 0x00000000FFFFFFFFl & (long) i;
         return l;
+    }
+
+    /**
+     * Converts a string into a byte array
+     * @param string string to convert
+     * @return
+     */
+    private byte[] getBytesFromString(String string){
+        return string.getBytes();
+    }
+
+    /**
+     * Converts a byte array into a String
+     * @param bytes bytes to convert
+     * @return
+     */
+    private String getStringFromBytes(byte[] bytes){
+        return (new String(bytes, Charset.defaultCharset()));
     }
 
     /**
