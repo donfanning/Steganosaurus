@@ -46,6 +46,7 @@ public class Steganograph {
         //Create pixel arrays
         Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
         byte[] toHideByte = getBytesFromBitmap(pictureToHide);
+        //toHideByte = getBytesFromString("F");
 
         //This is where the magic happens
         Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
@@ -54,6 +55,7 @@ public class Steganograph {
 
         //Used to test decryption without going through save and load image process
         //resultingBitmap = decodePicture(resultingBitmap);
+        Log.w("Debug : " , getStringFromBytes(getDataFromBitmap(resultingBitmap)));
 
         return resultingBitmap;
     }
@@ -159,22 +161,9 @@ public class Steganograph {
 
         for(int i =0; i<message.length; i++){
             //Calculate modified byte
-            if(i<4 ) curModifiedByte = InverseByteBasedOnEncryption(message[i], bitPerColor, true);
+            if(i<4 ) curModifiedByte = InverseByteBasedOnEncryption(message[i], bitPerColor, false);
             else curModifiedByte = InverseByteBasedOnEncryption(message[i], bitPerColor, false);
 
-            //Debug BEFORE
-            /*
-            if (i < 4) {
-                Log.w("Debug : ", "before");
-                byte[] dBytes = new byte[4 * (8 / bitPerByte)];
-                for (int j = 0; j < dBytes.length; j += 3) {
-                    dBytes[j] = (byte) destPixels[j / 3].R;
-                    if (j + 1 < dBytes.length) dBytes[j + 1] = (byte) destPixels[j / 3].G;
-                    if (j + 2 < dBytes.length) dBytes[j + 2] = (byte) destPixels[j / 3].B;
-                }
-                LogByteArray(dBytes);
-            }
-            */
 
             for (int j = 0; j < 8; j++) {
                 switch (curColor) {
@@ -220,24 +209,6 @@ public class Steganograph {
 
 
             }
-
-            /*
-            //Debug AFTER
-            if (i < 4) {
-                Log.w("Debug : ", "after");
-                byte[] dBytes = new byte[4 * (8 / bitPerByte)];
-                for (int j = 0; j < dBytes.length; j += 3) {
-                    dBytes[j] = (byte) destPixels[j / 3].R;
-                    if (j + 1 < dBytes.length) dBytes[j + 1] = (byte) destPixels[j / 3].G;
-                    if (j + 2 < dBytes.length) dBytes[j + 2] = (byte) destPixels[j / 3].B;
-                }
-                LogByteArray(dBytes);
-
-            }
-            */
-
-
-
 
         }
 
@@ -340,8 +311,7 @@ public class Steganograph {
      * @return
      */
     private boolean CheckStopDecodingConditions(DecodingStatusObject statusObj,  List<Byte> data, int bitPerColor){
-
-
+        
         if(statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesHeader) {
             statusObj.inHeader = false;
             // Get value in current data (this is the amount of bytes we need to check to get the body's data)
@@ -354,7 +324,7 @@ public class Steganograph {
             Log.w("debug : ", "Decoding " + statusObj.amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
             //Log.w("debug : ", "test amt bytes " + testAmtBytes);
             //Reset data
-            data = new ArrayList<Byte>();
+            data.clear();
             statusObj.currentByte = 0; //Reset current byte
 
         } else if(!statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesBody) {
