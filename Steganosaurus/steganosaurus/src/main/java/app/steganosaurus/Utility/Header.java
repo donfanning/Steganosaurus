@@ -11,17 +11,20 @@ public class Header {
     public Const.DataType dataType;
     public int noBytesToDecrypt = 0;
     public int bitPerBytes = 0;
+    public boolean isValid = true;
+    public final int headerByteSize = 14;
 
     /**
      * Decodes the header data from the received bytes
      * @param rawData The raw data in an array of bytes
-     * @return The bytes without the header or null if the data is invalid
+     * @return The if the object is valid
      */
-    public Byte[] DecodeHeader(Byte[] rawData) {
+    public boolean DecodeHeader(Byte[] rawData) {
         List<Byte> data = Arrays.asList(rawData);
         if (CheckBytesValidity(data) == null) {
             Log.v("Debug : ", "The photo that is being decoded was not encoded prior to this");
-            return null;
+            isValid = false;
+            return false;
         }
 
         //Type
@@ -52,7 +55,7 @@ public class Header {
         bitPerBytes = Steganograph.getIntFromBytes(rawBitPerByte);
         RemoveAtStart(data, 4);
 
-        return data.toArray(new Byte[data.size()]);
+        return true;
     }
 
 
@@ -66,6 +69,7 @@ public class Header {
     public static byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes) {
         List<Byte> header = new ArrayList<Byte>();
 
+        Log.v("Debug : ", "Test Test Test");
         //Verification Symbols
         header.add((byte)'@');
         header.add((byte)'%');
