@@ -75,9 +75,9 @@ public class Header {
      * @return
      */
     public static byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes) {
-        Log.v("Debug : ", "Test Test Test");
         List<Byte> header = new ArrayList<Byte>();
 
+        Log.v("Debug : ", "Test Test Test");
         //Verification Symbols
         header.add((byte)'@');
         header.add((byte)'%');
