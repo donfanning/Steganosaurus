@@ -245,14 +245,10 @@ public class Steganograph {
         List<Byte> data = new ArrayList<Byte>();
         int byteIndex = 0;
         int R,G,B;
-        Log.v("DEBUG : ", "Test @{1}");
+
         //Create the header object
         Header header = new Header();
-        Log.v("DEBUG : ", "Test @{2}");
-        Byte[] headerRawData = new Byte[header.headerByteSize];
-        Log.v("DEBUG : ", "Test @{3}");
-        int headerDataIndex = 0;
-        Log.v("DEBUG : ", "Test @{4}");
+
         decodingStatusObject.imgW = picture.getWidth();
         decodingStatusObject.imgH = picture.getHeight();
         decodingStatusObject.amtOfBytesHeader =  header.headerByteSize * (8/bitPerByte);
@@ -317,7 +313,6 @@ public class Steganograph {
      * @return
      */
     private boolean CheckStopDecodingConditions(DecodingStatusObject statusObj,  List<Byte> data, int bitPerColor, Header header){
-        
         if(statusObj.inHeader && statusObj.currentByte == statusObj.amtOfBytesHeader) {
             statusObj.inHeader = false;
             // Get value in current data (this is the amount of bytes we need to check to get the body's data)
@@ -334,20 +329,6 @@ public class Steganograph {
             } else {
                 Log.v("Debug : ", "The header format is invalid, the data is not encrypted");
             }
-            //Log.w("debug : ", "test amt bytes " + testAmtBytes);
-            /*statusObj.inHeader = false;
-            // Get value in current data (this is the amount of bytes we need to check to get the body's data)
-            Byte[] dataAsByte = new Byte[data.size()];
-            statusObj.amtOfBytesBody = getUnsignedLongFromBytes(toPrimitives(data.toArray(dataAsByte)));
-
-            Log.w("debug : ", "HEADER IN DECRYPT : ");
-            LogByteArray(toPrimitives(data.toArray(dataAsByte)));
-            Log.w("debug : ", "Decoded " + statusObj.currentByte + " bytes in header");
-            Log.w("debug : ", "Decoding " + statusObj.amtOfBytesBody + " bytes with " + bitPerColor + " bit per bytes modified");
-            //Log.w("debug : ", "test amt bytes " + testAmtBytes);
-            //Reset data
-            data.clear();
-            statusObj.currentByte = 0; //Reset current byte*/
 
             //Reset data
             data.clear();

@@ -13,6 +13,14 @@ public class Header {
     public int bitPerBytes = 0;
     public boolean isValid = true;
     public final int headerByteSize = 14;
+    private int index = 0;
+
+    public Header() {
+        dataType = Const.DataType.PHOTO;
+        noBytesToDecrypt = 0;
+        bitPerBytes = 0;
+        isValid = true;
+    }
 
     /**
      * Decodes the header data from the received bytes
@@ -28,7 +36,7 @@ public class Header {
         }
 
         //Type
-        Byte[] rawType = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawType = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         int type = Steganograph.getIntFromBytes(rawType);
         switch (type) {
             case Const.DataType.PHOTO_VALUE:
@@ -43,17 +51,17 @@ public class Header {
             default:
                 Log.v("ERROR : ", "Data type with ID " + type + " Does not exist");
         }
-        RemoveAtStart(data, 4);
+        index += 4;
 
         //Number of byte to decrypt
-        Byte[] rawByteToDecrypt = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawByteToDecrypt = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         noBytesToDecrypt = Steganograph.getIntFromBytes(rawByteToDecrypt);
-        RemoveAtStart(data, 4);
+        index += 4;
 
         //Bit per Bytes
-        Byte[] rawBitPerByte = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawBitPerByte = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         bitPerBytes = Steganograph.getIntFromBytes(rawBitPerByte);
-        RemoveAtStart(data, 4);
+        index += 4;
 
         return true;
     }
@@ -67,9 +75,9 @@ public class Header {
      * @return
      */
     public static byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes) {
+        Log.v("Debug : ", "Test Test Test");
         List<Byte> header = new ArrayList<Byte>();
 
-        Log.v("Debug : ", "Test Test Test");
         //Verification Symbols
         header.add((byte)'@');
         header.add((byte)'%');
@@ -94,13 +102,6 @@ public class Header {
         header.addAll(IntToByte(bitPerBytes));
 
         return Steganograph.toPrimitives(header.toArray(new Byte[header.size()]));
-    }
-
-    private List<Byte> RemoveAtStart(List<Byte> data, int bytesToRemove){
-        for (int i=0; i < bytesToRemove; ++i) {
-            data.remove(0);
-        }
-        return data;
     }
 
     private static List<Byte> DataTypeToByte(Const.DataType type) {
@@ -129,8 +130,8 @@ public class Header {
      * @return
      */
     private List<Byte> CheckBytesValidity(List<Byte> data) {
-        if (data.get(0) == '@' && data.get(1) == '%') {
-            data = RemoveAtStart(data, 2);
+        if (data.get(index) == '@' && data.get(++index) == '%') {
+            ++index;
             return data;
         }
         return null;
