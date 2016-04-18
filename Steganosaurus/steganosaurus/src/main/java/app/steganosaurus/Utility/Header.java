@@ -11,21 +11,32 @@ public class Header {
     public Const.DataType dataType;
     public int noBytesToDecrypt = 0;
     public int bitPerBytes = 0;
+    public boolean isValid = true;
+    public final int headerByteSize = 14;
+    private int index = 0;
+
+    public Header() {
+        dataType = Const.DataType.PHOTO;
+        noBytesToDecrypt = 0;
+        bitPerBytes = 0;
+        isValid = true;
+    }
 
     /**
      * Decodes the header data from the received bytes
      * @param rawData The raw data in an array of bytes
-     * @return The bytes without the header or null if the data is invalid
+     * @return The if the object is valid
      */
-    public Byte[] DecodeHeader(Byte[] rawData) {
+    public boolean DecodeHeader(Byte[] rawData) {
         List<Byte> data = Arrays.asList(rawData);
         if (CheckBytesValidity(data) == null) {
             Log.v("Debug : ", "The photo that is being decoded was not encoded prior to this");
-            return null;
+            isValid = false;
+            return false;
         }
 
         //Type
-        Byte[] rawType = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawType = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         int type = Steganograph.getIntFromBytes(rawType);
         switch (type) {
             case Const.DataType.PHOTO_VALUE:
@@ -40,19 +51,19 @@ public class Header {
             default:
                 Log.v("ERROR : ", "Data type with ID " + type + " Does not exist");
         }
-        RemoveAtStart(data, 4);
+        index += 4;
 
         //Number of byte to decrypt
-        Byte[] rawByteToDecrypt = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawByteToDecrypt = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         noBytesToDecrypt = Steganograph.getIntFromBytes(rawByteToDecrypt);
-        RemoveAtStart(data, 4);
+        index += 4;
 
         //Bit per Bytes
-        Byte[] rawBitPerByte = Steganograph.GetSubArrayOfByteArray(data, 0, 4);
+        Byte[] rawBitPerByte = Steganograph.GetSubArrayOfByteArray(data, index, 4);
         bitPerBytes = Steganograph.getIntFromBytes(rawBitPerByte);
-        RemoveAtStart(data, 4);
+        index += 4;
 
-        return data.toArray(new Byte[data.size()]);
+        return true;
     }
 
 
@@ -61,12 +72,12 @@ public class Header {
      * @param type The type of data
      * @param noBytesToDecrypt The number of bytes to decrypt
      * @param bitPerBytes The number of modified bit per bytes
-     * @param encodedData The encoded data without the header
      * @return
      */
-    public static Byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes, byte[] encodedData) {
+    public static byte[] EncodeHeader(Const.DataType type, int noBytesToDecrypt, int bitPerBytes) {
         List<Byte> header = new ArrayList<Byte>();
 
+        Log.v("Debug : ", "Test Test Test");
         //Verification Symbols
         header.add((byte)'@');
         header.add((byte)'%');
@@ -90,18 +101,7 @@ public class Header {
         //Bit per bytes
         header.addAll(IntToByte(bitPerBytes));
 
-        //Add header to encoded data
-        byte[] rawHeader = Steganograph.toPrimitives(header.toArray(new Byte[header.size()]));
-        encodedData = Steganograph.concatByteArray(rawHeader, encodedData);
-
-        return Steganograph.CastPrimitiveByteToByteWrapper(encodedData);
-    }
-
-    private List<Byte> RemoveAtStart(List<Byte> data, int bytesToRemove){
-        for (int i=0; i < bytesToRemove; ++i) {
-            data.remove(0);
-        }
-        return data;
+        return Steganograph.toPrimitives(header.toArray(new Byte[header.size()]));
     }
 
     private static List<Byte> DataTypeToByte(Const.DataType type) {
@@ -130,8 +130,8 @@ public class Header {
      * @return
      */
     private List<Byte> CheckBytesValidity(List<Byte> data) {
-        if (data.get(0) == '@' && data.get(1) == '%') {
-            data = RemoveAtStart(data, 2);
+        if (data.get(index) == '@' && data.get(++index) == '%') {
+            ++index;
             return data;
         }
         return null;
