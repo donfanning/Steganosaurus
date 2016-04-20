@@ -81,12 +81,13 @@ public class Steganograph {
      * @param picture
      * @return
      */
-    public Bitmap decodePicture(Bitmap picture) {
+    public DecryptObject decodePicture(Bitmap picture) {
 
         byte[] retrievedData = getDataFromBitmap(picture);
         //TODO : This currently only return a bitmap. Later, we will want this to return the correct media
 
-        return getBitmapFromBytes(retrievedData);
+        DecryptObject decryptObj = new DecryptObject(getBitmapFromBytes(retrievedData));
+        return decryptObj;
     }
 
     /**

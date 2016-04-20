@@ -1,6 +1,7 @@
 package app.steganosaurus;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import app.steganosaurus.Utility.Const;
+import app.steganosaurus.Utility.DecryptObject;
 import app.steganosaurus.Utility.MediaManager;
 import app.steganosaurus.Utility.Steganograph;
 import steganosaurus.R;
@@ -56,19 +58,34 @@ public class DecryptActivity extends AppCompatActivity {
      * @param v the button that was clicked
      */
     public void decryptPicture(View v) {
-        if (decryptedImage == null)
-            decryptedImage = steganograph.decodePicture(selectedPicture);
+        if (decryptedImage == null) {
+            DecryptObject dObj = steganograph.decodePicture(selectedPicture);
+            decryptedImage = dObj.GetBitmap();
+        }
+        final Context c = this;
 
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        View view = getLayoutInflater().inflate(R.layout.popup_image, null);
+        View view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_bitmap, null);
         ImageView imgv = (ImageView)view.findViewById(R.id.result_popup_image_after);
         if (imgv != null)
             imgv.setImageBitmap(decryptedImage);
         Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
+        Button b_save = (Button)view.findViewById(R.id.decrypt_popup_save_btn);
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.hide();
+            }
+        });
+        b_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mediaManager.SaveImageOn(decryptedImage, getApplicationContext())){
+                    Toast.makeText(c, "Image saved successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(c, "Image failed to save properly", Toast.LENGTH_SHORT).show();
+                }
                 dialog.hide();
             }
         });

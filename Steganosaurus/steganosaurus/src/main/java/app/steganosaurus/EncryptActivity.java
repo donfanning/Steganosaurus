@@ -72,8 +72,8 @@ public class EncryptActivity extends AppCompatActivity {
 
 
         //Buttons
-        Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
-        Button b_save = (Button)view.findViewById(R.id.decrypt_popup_save_btn);
+        Button b_ok = (Button)view.findViewById(R.id.encrypt_popup_go_back_btn);
+        Button b_save = (Button)view.findViewById(R.id.encrypt_popup_save_btn);
         b_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
