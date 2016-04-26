@@ -13,6 +13,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class DecryptActivity extends AppCompatActivity {
     Uri selectedPictureUri = null;
     Bitmap selectedPicture = null;
     Bitmap decryptedImage = null;
+    String decryptedText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +60,33 @@ public class DecryptActivity extends AppCompatActivity {
      * @param v the button that was clicked
      */
     public void decryptPicture(View v) {
+        DecryptObject dObj = null;
         if (decryptedImage == null) {
-            DecryptObject dObj = steganograph.decodePicture(selectedPicture);
-            decryptedImage = dObj.GetBitmap();
+            dObj = steganograph.decodePicture(selectedPicture);
+            if (dObj.GetType() == Const.DataType.PHOTO)
+                decryptedImage = dObj.GetBitmap();
+            else if (dObj.GetType() == Const.DataType.TEXT)
+                decryptedText = dObj.GetString();
         }
         final Context c = this;
 
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        View view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_bitmap, null);
-        ImageView imgv = (ImageView)view.findViewById(R.id.result_popup_image_after);
-        if (imgv != null)
-            imgv.setImageBitmap(decryptedImage);
+
+        View view = null;
+        if (dObj.GetType() == Const.DataType.PHOTO) {
+            view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_bitmap, null);
+            ImageView imgv = (ImageView) view.findViewById(R.id.result_popup_image_after);
+            if (imgv != null)
+                imgv.setImageBitmap(decryptedImage);
+        }
+        else if (dObj.GetType() == Const.DataType.TEXT) {
+            view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_text, null);
+            TextView textv = (TextView) view.findViewById(R.id.result_popup_text_after);
+            if (textv != null) {
+                textv.setText(decryptedText);
+            }
+        }
         Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
         Button b_save = (Button)view.findViewById(R.id.decrypt_popup_save_btn);
         b_ok.setOnClickListener(new View.OnClickListener() {
