@@ -5,19 +5,34 @@
     android:orientation="vertical"
     android:paddingBottom="20dp">
 
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Options"
-        android:id="@+id/options_title_txt"
-        android:textStyle="bold"
-        android:textSize="36dp"
         android:layout_marginTop="36dp"
         android:layout_marginBottom="30dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginStart="30dp"/>
+        android:layout_marginStart="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Options"
+            android:id="@+id/options_title_txt"
+            android:textStyle="bold"
+            android:textSize="36dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="(In Progress)"
+            android:id="@+id/options_title_txt"
+            android:textSize="24dp"
+            android:layout_marginLeft="15dp"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -28,25 +43,46 @@
         android:padding="15dp"
         android:layout_marginBottom="10dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Resolution:"
-            android:id="@+id/options_res_txt"
-            android:textSize="30dp"
-            android:textColor="#fff"
-            android:textStyle="bold" />
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Quality:"
+                android:id="@+id/options_quality_txt_title"
+                android:textSize="26dp"
+                android:textColor="#fff"
+                android:textStyle="bold"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="bits per Bytes modified"
+                android:id="@+id/options_quality_txt_info"
+                android:textSize="18dp"
+                android:textColor="#fff" />
+
+        </LinearLayout>
 
         <Spinner
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:id="@+id/options_resolution_spinner"
+            android:id="@+id/options_quality_spinner"
             android:layout_weight="1"
             android:spinnerMode="dropdown"
             android:layout_marginLeft="30dp"
             android:background="#fff"
             android:padding="15dp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -59,18 +95,38 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="15dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Compression:"
-            android:id="@+id/options_comp_txt"
-            android:textSize="28dp"
-            android:textStyle="bold"
-            android:textColor="#fff" />
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Compression:"
+                android:id="@+id/options_compression_txt_title"
+                android:textSize="26dp"
+                android:textStyle="bold"
+                android:textColor="#fff"
+                android:layout_marginBottom="5dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Compression of image to encrypt"
+                android:id="@+id/options_compression_txt_info"
+                android:textSize="18dp"
+                android:textColor="#fff" />
+
+        </LinearLayout>
 
         <Spinner
-            android:layout_width="0dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:id="@+id/options_compression_spinner"
             android:layout_weight="1"

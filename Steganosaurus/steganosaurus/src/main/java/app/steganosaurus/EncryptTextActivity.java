@@ -38,7 +38,6 @@ public class EncryptTextActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Toast.makeText(this, "into encrypt text activity", Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_encrypt_text);
 
@@ -64,7 +63,6 @@ public class EncryptTextActivity extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, textToHide, Toast.LENGTH_SHORT).show();
         final Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,textToHide);
 
         final Dialog dialog = new Dialog(this);

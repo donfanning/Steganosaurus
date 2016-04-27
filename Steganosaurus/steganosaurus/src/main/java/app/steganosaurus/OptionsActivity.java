@@ -28,7 +28,7 @@ public class OptionsActivity extends AppCompatActivity {
 
         propertiesManager = new PropertiesManager(this);
 
-        Spinner res_spinner = (Spinner) findViewById(R.id.options_resolution_spinner);
+        Spinner res_spinner = (Spinner) findViewById(R.id.options_quality_spinner);
         String [] res_items = {"low", "medium", "high"};
         setSpinnerItems(res_spinner, res_items);
 
@@ -58,7 +58,7 @@ public class OptionsActivity extends AppCompatActivity {
      * @param v the button that was clicked
      */
     public void saveOptions(View v) {
-        Spinner resolutionSpinner = (Spinner)findViewById(R.id.options_resolution_spinner);
+        Spinner resolutionSpinner = (Spinner)findViewById(R.id.options_quality_spinner);
         Spinner compressionSpinner = (Spinner)findViewById(R.id.options_compression_spinner);
 
         String selectedResolution = resolutionSpinner.getSelectedItem().toString();
