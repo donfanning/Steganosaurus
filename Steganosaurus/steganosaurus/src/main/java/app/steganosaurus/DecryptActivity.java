@@ -1,13 +1,16 @@
 package app.steganosaurus;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.*;
+import android.os.Process;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -61,14 +64,16 @@ public class DecryptActivity extends AppCompatActivity {
      */
     public void decryptPicture(View v) {
         DecryptObject dObj = null;
-        if (decryptedImage == null) {
-            dObj = steganograph.decodePicture(selectedPicture);
-            if (dObj.GetType() == Const.DataType.PHOTO)
-                decryptedImage = dObj.GetBitmap();
-            else if (dObj.GetType() == Const.DataType.TEXT)
-                decryptedText = dObj.GetString();
-        }
+        LoadingSpinnerAsync async = new LoadingSpinnerAsync();
+        async.execute();
+        dObj = steganograph.decodePicture(selectedPicture);
+        if (dObj.GetType() == Const.DataType.PHOTO)
+            decryptedImage = dObj.GetBitmap();
+        else if (dObj.GetType() == Const.DataType.TEXT)
+            decryptedText = dObj.GetString();
+
         final Context c = this;
+        async.isCompleted = true;
 
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -137,4 +142,31 @@ public class DecryptActivity extends AppCompatActivity {
         catch(IOException e) {e.printStackTrace();}
     }
 
+    private class LoadingSpinnerAsync extends AsyncTask<Void, Void, Void> {
+        public boolean isCompleted = false;
+        private ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_FOREGROUND);
+            dialog = ProgressDialog.show(
+                    DecryptActivity.this,
+                    "Decrypting Data",
+                    "Please wait...",
+                    true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            while (!isCompleted) { }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            dialog.dismiss();
+        }
+    }
 }
+
+

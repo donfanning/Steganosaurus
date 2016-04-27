@@ -1,12 +1,13 @@
 package app.steganosaurus;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
+import android.os.*;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -57,7 +58,10 @@ public class EncryptActivity extends AppCompatActivity {
             return;
         }
 
+        LoadingSpinnerAsync async = new LoadingSpinnerAsync();
+        async.execute();
         final Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,selectedPictureToHide);
+        async.isCompleted = true;
 
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -176,6 +180,32 @@ public class EncryptActivity extends AppCompatActivity {
                         imgbtn.setImageBitmap(cameraPicture);
                 } catch (Exception e) { e.printStackTrace(); }
                 break;
+        }
+    }
+
+    private class LoadingSpinnerAsync extends AsyncTask<Void, Void, Void> {
+        public boolean isCompleted = false;
+        private ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_FOREGROUND);
+            dialog = ProgressDialog.show(
+                    EncryptActivity.this,
+                    "Encrypting Data",
+                    "Please wait...",
+                    true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            while (!isCompleted) { }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            dialog.dismiss();
         }
     }
 
