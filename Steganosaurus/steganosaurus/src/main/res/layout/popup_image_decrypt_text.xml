@@ -19,7 +19,7 @@
         android:layout_height="350dp"
         android:layout_width="350dp"
         android:background="#FFFFFF"
-        android:text="tON MEsAGE cRISSSs"
+        android:text="Message"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:gravity="center_vertical|center_horizontal"
@@ -45,16 +45,6 @@
             android:layout_gravity="center_horizontal"
             android:textSize="24dp"
             android:textStyle="bold" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save"
-            android:id="@+id/decrypt_popup_save_btn"
-            android:layout_gravity="center_horizontal"
-            android:textSize="24dp"
-            android:textStyle="bold"
-            android:layout_margin="15dp"/>
 
     </LinearLayout>
 </LinearLayout>
