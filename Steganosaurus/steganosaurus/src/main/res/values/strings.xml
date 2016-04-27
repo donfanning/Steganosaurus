@@ -4,8 +4,9 @@
     <string name="title_activity_decrypt">DecryptActivity</string>
 
     <string name="logo_description">Main menu logo</string>
-    <string name="encrypt_button_text">Hide secrets</string>
-    <string name="decrypt_button_text">Show secrets</string>
+    <string name="encrypt_button_text_image">Hide image</string>
+    <string name="encrypt_button_text_text">Hide text</string>
+    <string name="decrypt_button_text">Show secret</string>
 
     <string name="back_button_text">Go back</string>
     <string name="title_activity_options">OptionsActivity</string>

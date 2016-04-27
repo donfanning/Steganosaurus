@@ -31,8 +31,16 @@ public class MainMenu extends AppCompatActivity {
      * @param v the button that was clicked
      */
     public void encrypt(View v) {
-        Intent i = new Intent(this, EncryptActivity.class);
-        startActivityForResult(i, Const.ENCRYPT_CODE);
+        String button_text = ((Button)v).getText().toString();
+
+        if (button_text.equals("Hide image")) {
+            Intent i = new Intent(this, EncryptImageActivity.class);
+            startActivityForResult(i, Const.ENCRYPT_IMAGE_CODE);
+        }
+        else if (button_text.equals("Hide text")) {
+            Intent i = new Intent(this, EncryptTextActivity.class);
+            startActivityForResult(i, Const.ENCRYPT_TEXT_CODE);
+        }
     }
 
     /**

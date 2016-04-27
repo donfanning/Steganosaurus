@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -23,12 +24,12 @@ import steganosaurus.R;
 
 /**
  * Activity class for steganography itself. Allows user to
- * select pictures to mix together.
+ * hide text into an image.
  */
-public class EncryptActivity extends AppCompatActivity {
+public class EncryptTextActivity extends AppCompatActivity {
 
     Bitmap selectedBasePicture;
-    Bitmap selectedPictureToHide;
+    String textToHide;
     Bitmap cameraPicture;
     Uri cameraImageUri;
 
@@ -37,27 +38,34 @@ public class EncryptActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Toast.makeText(this, "into encrypt text activity", Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_encrypt);
+        setContentView(R.layout.activity_encrypt_text);
 
         mediaManager = new MediaManager(this);
         steganograph = new Steganograph();
     }
 
     /**
-     * Callback. Takes selectedBasePicture and encrypts selectedPictureToHide in it
+     * Callback. Takes selectedBasePicture and encrypts textToHide in it
      * @param v the button that was clicked
      */
+
     public void encrypt(View v) {
         final String button_title = (String) ((Button)v).getText();
         final Context c = this;
 
-        if(selectedBasePicture == null || selectedPictureToHide == null) {
-            Toast.makeText(c, "Select two pictures to proceed ", Toast.LENGTH_LONG).show();
+        EditText editText = (EditText)findViewById(R.id.textToHide);
+        if (editText.getText().toString().trim().length() > 0)
+            textToHide = editText.getText().toString().trim();
+
+        if(selectedBasePicture == null || textToHide == null) {
+            Toast.makeText(c, "Select a picture and write text to proceed ", Toast.LENGTH_LONG).show();
             return;
         }
 
-        final Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,selectedPictureToHide);
+        Toast.makeText(this, textToHide, Toast.LENGTH_SHORT).show();
+        final Bitmap resultingImage = steganograph.encodePicture(selectedBasePicture,textToHide);
 
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -99,7 +107,7 @@ public class EncryptActivity extends AppCompatActivity {
      * Callback. Allows user to take picture with the device's camera
      * request code depends on clicked button's id. MediaManager starts
      * the camera activity for result
-     * @param v the button that was ciicked
+     * @param v the button that was clicked
      */
     public void takePicture(View v) {
         int requestCode = 0;
@@ -145,32 +153,21 @@ public class EncryptActivity extends AppCompatActivity {
             switch (requestCode) {
             //Results for selecting a picture on the device
             case Const.PICK_SOURCE_IMAGE_REQUEST:
-            case Const.PICK_HIDDEN_IMAGE_REQUEST:
                 if (data.getData() != null) {
                     Bitmap selectedPicture = mediaManager.getSelectedPictureBitmap(requestCode, data);
-                    if (requestCode == Const.PICK_SOURCE_IMAGE_REQUEST)
-                        selectedBasePicture = selectedPicture;
-                    else
-                        selectedPictureToHide = selectedPicture;
+                    selectedBasePicture = selectedPicture;
                 }
                 break;
 
             //Result for taking a picture with hardware camera
             case Const.REQUEST_SOURCE_IMAGE_CAPTURE:
-            case Const.REQUEST_HIDDEN_IMAGE_CAPTURE:
                 try {
                     int id;
                     this.getContentResolver().notifyChange(cameraImageUri, null);
                     ContentResolver cr = this.getContentResolver();
                     cameraPicture = MediaStore.Images.Media.getBitmap(cr, cameraImageUri);
-                    if (requestCode == Const.REQUEST_SOURCE_IMAGE_CAPTURE) {
-                        id = R.id.encrypt_source_image;
-                        selectedBasePicture = cameraPicture;
-                    }
-                    else {
-                        id = R.id.encrypt_hidden_image;
-                        selectedPictureToHide = cameraPicture;
-                    }
+                    id = R.id.encrypt_source_image;
+                    selectedBasePicture = cameraPicture;
                     ImageButton imgbtn = (ImageButton) findViewById(id);
                     if (imgbtn != null)
                         imgbtn.setImageBitmap(cameraPicture);

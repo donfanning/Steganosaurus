@@ -6,10 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
+import android.os.*;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +52,7 @@ public class Steganograph {
         //toHideByte = getBytesFromString("F");
 
         //This is where the magic happens
-        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
+        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte, Const.DataType.PHOTO);
         //Transform pixels into a new bitmap
         Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
 
@@ -60,18 +63,14 @@ public class Steganograph {
         return resultingBitmap;
     }
 
-    public Bitmap encodeString(Bitmap destinationPicture, String stringToHide) {
+    public Bitmap encodePicture(Bitmap destinationPicture, String textToHide) {
         //Create pixel arrays
         Pixel[] destinationPixel = getRGBFromBitmap(destinationPicture);
-        byte[] toHideByte = getBytesFromString(stringToHide);
-
+        byte[] toHideByte = textToHide.getBytes();
         //This is where the magic happens
-        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte);
+        Pixel[] resultingPixels = encodePixels(destinationPixel, toHideByte, Const.DataType.TEXT);
         //Transform pixels into a new bitmap
         Bitmap resultingBitmap = getBitmapFromRGB(resultingPixels, destinationPicture.getWidth(), destinationPicture.getHeight());
-
-        //Used to test decryption without going through save and load image process
-        //Log.w("Debug : " , decodePicture_String(resultingBitmap));
 
         return resultingBitmap;
     }
@@ -83,11 +82,27 @@ public class Steganograph {
      */
     public DecryptObject decodePicture(Bitmap picture) {
 
-        byte[] retrievedData = getDataFromBitmap(picture);
+        ReturnedDataObject retrievedData = getDataFromBitmap(picture);
         //TODO : This currently only return a bitmap. Later, we will want this to return the correct media
 
-        DecryptObject decryptObj = new DecryptObject(getBitmapFromBytes(retrievedData));
+        DecryptObject decryptObj = null;
+        if (retrievedData.header.dataType == Const.DataType.PHOTO) {
+            decryptObj = new DecryptObject(getBitmapFromBytes(retrievedData.data));
+        }
+        else {
+            decryptObj = new DecryptObject(new String(retrievedData.data));
+        }
         return decryptObj;
+    }
+
+    protected class ReturnedDataObject {
+        Header header;
+        byte[] data;
+
+        protected ReturnedDataObject(Header header, byte[] data) {
+            this.header = header;
+            this.data = data;
+        }
     }
 
     /**
@@ -96,21 +111,25 @@ public class Steganograph {
      * @param data data to encrypt in bytes
      * @return
      */
-    private Pixel[] encodePixels(Pixel[] destPixels, byte[] data){
+    private Pixel[] encodePixels(Pixel[] destPixels, byte[] data, Const.DataType type){
 
         //Should include type of hidden data (picture, sound, text) and amount of bit on which the encoding is done
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
-        byte[] header = Header.EncodeHeader(Const.DataType.PHOTO, amtOfBytesToEncodeInto, bitPerByte);
+        byte[] header = Header.EncodeHeader(type, amtOfBytesToEncodeInto, bitPerByte);
         byte[] headerWithData = concatByteArray(header, data);
         Log.w("debug : ", "HEADER IN ENCRYPT : ");
         LogByteArray(header); // log header for debug purposes
         Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
-        hideBytesInPixels(destPixels,bitPerByte, headerWithData);
+        if (data.length / bitPerByte <= destPixels.length*3) {
+            hideBytesInPixels(destPixels, bitPerByte, headerWithData);
+            return destPixels;
+        }
+        else
+            Log.w("debug : ", "image to hide too big!");
 
-
-        return destPixels;
+        return null;
     }
 
     /**
@@ -239,7 +258,7 @@ public class Steganograph {
      * @param picture to analyse
      * @return null if no message, otherwise message as byte array
      */
-    private byte[] getDataFromBitmap(Bitmap picture){
+    private ReturnedDataObject getDataFromBitmap(Bitmap picture){
         /* Values to separate header and body */
         DecodingStatusObject decodingStatusObject = new DecodingStatusObject();
         int bitmask = (int)Math.pow(2,bitPerByte);
@@ -297,7 +316,7 @@ public class Steganograph {
 
         //Convert list to array
         Byte[] dataAsByte = new Byte[data.size()];
-        return(toPrimitives(data.toArray(dataAsByte)));
+        return(new ReturnedDataObject(header, toPrimitives(data.toArray(dataAsByte))));
     }
 
     /**
