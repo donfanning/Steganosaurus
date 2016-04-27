@@ -60,54 +60,59 @@ public class DecryptActivity extends AppCompatActivity {
      * @param v the button that was clicked
      */
     public void decryptPicture(View v) {
-        DecryptObject dObj = null;
-        if (decryptedImage == null) {
-            dObj = steganograph.decodePicture(selectedPicture);
-            if (dObj.GetType() == Const.DataType.PHOTO)
-                decryptedImage = dObj.GetBitmap();
-            else if (dObj.GetType() == Const.DataType.TEXT)
-                decryptedText = dObj.GetString();
-        }
-        final Context c = this;
-
-        final Dialog dialog = new Dialog(this);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
-        View view = null;
-        if (dObj.GetType() == Const.DataType.PHOTO) {
-            view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_bitmap, null);
-            ImageView imgv = (ImageView) view.findViewById(R.id.result_popup_image_after);
-            if (imgv != null)
-                imgv.setImageBitmap(decryptedImage);
-        }
-        else if (dObj.GetType() == Const.DataType.TEXT) {
-            view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_text, null);
-            TextView textv = (TextView) view.findViewById(R.id.result_popup_text_after);
-            if (textv != null) {
-                textv.setText(decryptedText);
+        if(selectedPicture != null) {
+            DecryptObject dObj = null;
+            if (decryptedImage == null) {
+                dObj = steganograph.decodePicture(selectedPicture);
+                if (dObj.GetType() == Const.DataType.PHOTO)
+                    decryptedImage = dObj.GetBitmap();
+                else if (dObj.GetType() == Const.DataType.TEXT)
+                    decryptedText = dObj.GetString();
             }
-        }
-        Button b_ok = (Button)view.findViewById(R.id.decrypt_popup_go_back_btn);
-        Button b_save = (Button)view.findViewById(R.id.decrypt_popup_save_btn);
-        b_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.hide();
-            }
-        });
-        b_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mediaManager.SaveImageOn(decryptedImage, getApplicationContext())){
-                    Toast.makeText(c, "Image saved successfully", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(c, "Image failed to save properly", Toast.LENGTH_SHORT).show();
+            final Context c = this;
+
+            final Dialog dialog = new Dialog(this);
+            dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+            View view = null;
+            if (dObj.GetType() == Const.DataType.PHOTO) {
+                view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_bitmap, null);
+                ImageView imgv = (ImageView) view.findViewById(R.id.result_popup_image_after);
+                if (imgv != null)
+                    imgv.setImageBitmap(decryptedImage);
+            } else if (dObj.GetType() == Const.DataType.TEXT) {
+                view = getLayoutInflater().inflate(R.layout.popup_image_decrypt_text, null);
+                TextView textv = (TextView) view.findViewById(R.id.result_popup_text_after);
+                if (textv != null) {
+                    textv.setText(decryptedText);
                 }
-                dialog.hide();
             }
-        });
-        dialog.setContentView(view);
-        dialog.show();
+            Button b_ok = (Button) view.findViewById(R.id.decrypt_popup_go_back_btn);
+            Button b_save = (Button) view.findViewById(R.id.decrypt_popup_save_btn);
+            b_ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.hide();
+                }
+            });
+            if (b_save != null) {
+                b_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mediaManager.SaveImageOn(decryptedImage, getApplicationContext())) {
+                            Toast.makeText(c, "Image saved successfully", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(c, "Image failed to save properly", Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.hide();
+                    }
+                });
+            }
+            dialog.setContentView(view);
+            dialog.show();
+        }
+        else
+            Toast.makeText(this, "Please choose an image", Toast.LENGTH_SHORT).show();
     }
 
     /**

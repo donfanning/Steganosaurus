@@ -8,6 +8,7 @@ import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.*;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -121,10 +122,14 @@ public class Steganograph {
         Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
-        hideBytesInPixels(destPixels,bitPerByte, headerWithData);
+        if (data.length / bitPerByte <= destPixels.length*3) {
+            hideBytesInPixels(destPixels, bitPerByte, headerWithData);
+            return destPixels;
+        }
+        else
+            Log.w("debug : ", "image to hide too big!");
 
-
-        return destPixels;
+        return null;
     }
 
     /**

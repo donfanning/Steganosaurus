@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,6 +34,7 @@ import steganosaurus.R;
 public class MediaManager {
 
     Activity context;
+    private static final int MAX_SIZE = 4096;
 
     public MediaManager(Activity _context) {
         context = _context;
@@ -94,7 +97,21 @@ public class MediaManager {
         try {
             int pictureId;
             Uri selectedPictureUri = data.getData();
+            /*
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(selectedPictureUri.toString(), options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            Log.v("debug :", "width: " + imageWidth);
+
+            Bitmap selectedPicture;
+            if (imageHeight <= MAX_SIZE && imageWidth <= MAX_SIZE)*/
             Bitmap selectedPicture = MediaStore.Images.Media.getBitmap(context.getContentResolver(), selectedPictureUri);
+           /* else
+                selectedPicture = resizeBitmap(MediaStore.Images.Media.getBitmap(context.getContentResolver(), selectedPictureUri));*/
+
 
             if (requestCode == Const.PICK_SOURCE_IMAGE_REQUEST)
                 pictureId = R.id.encrypt_source_image;
@@ -103,11 +120,28 @@ public class MediaManager {
 
             ImageButton imgbtn = (ImageButton) context.findViewById(pictureId);
             if (imgbtn != null)
-                imgbtn.setImageBitmap(selectedPicture);
+                /*if (selectedPicture.getWidth() > MAX_SIZE && selectedPicture.getHeight() > MAX_SIZE) {
+                    Toast.makeText(context, "Image is too big! It gets resized", Toast.LENGTH_SHORT).show();
+                    imgbtn.setImageBitmap(resizeBitmap(selectedPicture));
+                }
+                else*/
+                    imgbtn.setImageBitmap(selectedPicture);
             return selectedPicture;
         } catch (IOException e) { e.printStackTrace(); }
 
         return null;
+    }
+
+    private Bitmap resizeBitmap(Bitmap b) {
+        Bitmap bitmap;
+        float ratio = b.getWidth() / b.getHeight();
+        if (ratio > 0)
+            bitmap = Bitmap.createScaledBitmap(b, MAX_SIZE, Math.round(MAX_SIZE/ratio), false);
+        else if (ratio < 0)
+            bitmap = Bitmap.createScaledBitmap(b, Math.round(MAX_SIZE/ratio), MAX_SIZE, false);
+        else
+            bitmap = null;
+        return bitmap;
     }
 
     public void takeVideo() {
