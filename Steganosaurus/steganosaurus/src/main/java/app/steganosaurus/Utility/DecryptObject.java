@@ -2,9 +2,6 @@ package app.steganosaurus.Utility;
 
 import android.graphics.Bitmap;
 
-/**
- * Created by Alexis on 2016-04-19.
- */
 public class DecryptObject {
     Const.DataType dataType;
     Bitmap decryptedBitmap;
