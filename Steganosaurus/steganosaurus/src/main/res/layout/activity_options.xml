@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="(In Progress)"
-            android:id="@+id/options_title_txt"
+            android:id="@+id/options_title_txt_progress"
             android:textSize="24dp"
             android:layout_marginLeft="15dp"/>
 
