@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose starting image"
+            android:id="@+id/encrypt_choose_start_txt"
+            android:textSize="22sp"
+            android:paddingTop="12dp" />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Take picture"
+            android:id="@+id/encrypt_source_take_picture_btn"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="8dp"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:onClick="takePicture"/>
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/encrypt_source_image"
+        android:scaleType="centerCrop"
+        android:layout_weight="1"
+        android:onClick="getStoredPicturesFromDevice"/>
+
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Write text to hide"
+            android:id="@+id/encrypt_choose_hide_txt"
+            android:textSize="22sp"
+            android:paddingTop="12dp" />
+
+        </LinearLayout>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border"
+            android:id="@+id/textToHide"
+            android:layout_weight="1" />
+
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back_button_text"
+            android:id="@+id/encrypt_back_btn"
+            android:textSize="24sp"
+            android:background="#eca923"
+            android:padding="15dp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:onClick="backHome"/>
+
+        <!--////////////////-->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+        <!--////////////////-->
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Encrypt"
+            android:id="@+id/encrypt_encrypt_btn"
+            android:textSize="24sp"
+            android:background="#04e499"
+            android:padding="15dp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:onClick="encrypt"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -5,7 +5,8 @@ package app.steganosaurus.Utility;
  */
 public class Const {
 
-    public static final int ENCRYPT_CODE = 1;
+    public static final int ENCRYPT_TEXT_CODE = 0;
+    public static final int ENCRYPT_IMAGE_CODE = 1;
     public static final int DECRYPT_CODE = 2;
 
     public static final int PICK_SOURCE_IMAGE_REQUEST = 3;

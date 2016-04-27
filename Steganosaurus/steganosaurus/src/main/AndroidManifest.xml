@@ -24,7 +24,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="app.steganosaurus.EncryptActivity"
+            android:name="app.steganosaurus.EncryptImageActivity"
+            android:label="@string/title_activity_encrypt"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="app.steganosaurus.EncryptTextActivity"
             android:label="@string/title_activity_encrypt"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

@@ -66,7 +66,7 @@
                 android:id="@+id/main_encrypt_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="@string/encrypt_button_text"
+                android:text="@string/encrypt_button_text_image"
                 android:clickable="false"
                 android:textSize="20sp"
                 android:textColor="#2e2e2e"
@@ -95,18 +95,18 @@
                 android:id="@+id/main_share_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="Share secrets"
+                android:text="@string/encrypt_button_text_text"
                 android:clickable="false"
                 android:textSize="20sp"
                 android:textColor="#2E2E2E"
                 android:textStyle="bold"
-                android:onClick="share"/>
+                android:onClick="encrypt"/>
 
             <Button
                 android:id="@+id/main_options_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="Secret options"
+                android:text="Options"
                 android:clickable="false"
                 android:textSize="20sp"
                 android:textColor="#2E2E2E"

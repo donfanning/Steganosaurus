@@ -25,7 +25,7 @@ import steganosaurus.R;
  * Activity class for steganography itself. Allows user to
  * select pictures to mix together.
  */
-public class EncryptActivity extends AppCompatActivity {
+public class EncryptImageActivity extends AppCompatActivity {
 
     Bitmap selectedBasePicture;
     Bitmap selectedPictureToHide;
@@ -38,7 +38,7 @@ public class EncryptActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_encrypt);
+        setContentView(R.layout.activity_encrypt_image);
 
         mediaManager = new MediaManager(this);
         steganograph = new Steganograph();
