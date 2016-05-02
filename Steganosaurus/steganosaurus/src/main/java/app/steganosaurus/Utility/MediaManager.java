@@ -1,10 +1,12 @@
 package app.steganosaurus.Utility;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -35,6 +37,8 @@ public class MediaManager {
 
     Activity context;
     private static final int MAX_SIZE = 4096;
+    private static final int MAX_WIDTH = 1280;
+    private static final int MAX_HEIGHT = 720;
 
     public MediaManager(Activity _context) {
         context = _context;
@@ -94,25 +98,28 @@ public class MediaManager {
      * @return the bitmap image
      */
     public Bitmap getSelectedPictureBitmap(int requestCode, Intent data) {
+
         try {
+
             int pictureId;
             Uri selectedPictureUri = data.getData();
-            /*
+
+            //Create bitmapFactory options
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(selectedPictureUri.toString(), options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
+            //Decode img properties
+            InputStream inputStream = context.getApplicationContext().getContentResolver().openInputStream(selectedPictureUri);
+            BitmapFactory.decodeStream(inputStream,new Rect(),options);
 
-            Log.v("debug :", "width: " + imageWidth);
+            //Get sample size
+            options.inSampleSize = calculateInSampleSize(options, MAX_WIDTH, MAX_HEIGHT);
+            options.inJustDecodeBounds = false;
 
-            Bitmap selectedPicture;
-            if (imageHeight <= MAX_SIZE && imageWidth <= MAX_SIZE)*/
-            Bitmap selectedPicture = MediaStore.Images.Media.getBitmap(context.getContentResolver(), selectedPictureUri);
-           /* else
-                selectedPicture = resizeBitmap(MediaStore.Images.Media.getBitmap(context.getContentResolver(), selectedPictureUri));*/
+            //Decode image with correct properties
+            inputStream = context.getApplicationContext().getContentResolver().openInputStream(selectedPictureUri);
+            Bitmap selectedPicture = BitmapFactory.decodeStream(inputStream,new Rect(),options);
 
-
+            //Set correct picutre ID so image is set in the correct canvas
             if (requestCode == Const.PICK_SOURCE_IMAGE_REQUEST)
                 pictureId = R.id.encrypt_source_image;
             else
@@ -120,15 +127,12 @@ public class MediaManager {
 
             ImageButton imgbtn = (ImageButton) context.findViewById(pictureId);
             if (imgbtn != null)
-                /*if (selectedPicture.getWidth() > MAX_SIZE && selectedPicture.getHeight() > MAX_SIZE) {
-                    Toast.makeText(context, "Image is too big! It gets resized", Toast.LENGTH_SHORT).show();
-                    imgbtn.setImageBitmap(resizeBitmap(selectedPicture));
-                }
-                else*/
-                    imgbtn.setImageBitmap(selectedPicture);
+                imgbtn.setImageBitmap(selectedPicture);
             return selectedPicture;
-        } catch (IOException e) { e.printStackTrace(); }
-
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -219,5 +223,28 @@ public class MediaManager {
             return true;
         }
         return false;
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }

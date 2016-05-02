@@ -117,17 +117,18 @@ public class Steganograph {
         int amtOfBytesToEncodeInto = data.length * (8/bitPerByte);
         byte[] header = Header.EncodeHeader(type, amtOfBytesToEncodeInto, bitPerByte);
         byte[] headerWithData = concatByteArray(header, data);
-        Log.w("debug : ", "HEADER IN ENCRYPT : ");
-        LogByteArray(header); // log header for debug purposes
-        Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
+        //Log.w("debug : ", "HEADER IN ENCRYPT : ");
+        //LogByteArray(header); // log header for debug purposes
+        //Log.w("debug : ", "Encoding " + amtOfBytesToEncodeInto + " bytes with " + bitPerByte + " bit per bytes modified");
 
         //Encrypt data in destination pixels
         if (data.length / bitPerByte <= destPixels.length*3) {
             hideBytesInPixels(destPixels, bitPerByte, headerWithData);
             return destPixels;
         }
-        else
+        else {
             Log.w("debug : ", "image to hide too big!");
+        }
 
         return null;
     }
